@@ -2,7 +2,7 @@ const mongodb = require('mongodb')
 const express = require('express');
 const router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
-var util = require('util');
+var GeoJSON = require('geojson');
 
 const map = {
   url: 'mongodb://172.17.0.2:27017/',
@@ -15,7 +15,10 @@ router.get('/', async (req, res) => {
   const db = client.db(map.db);
   db.collection(map.collection).find({}).toArray(function(err, result) {
     if (err) throw err;
-    res.status(200).send(result);
+    res.status(200).send(
+      // TODO better parsing limited
+      GeoJSON.parse(result, {GeoJSON: 'location'})
+      );
   });
 });
 
