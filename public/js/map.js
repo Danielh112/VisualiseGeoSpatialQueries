@@ -1,42 +1,61 @@
-window.onload = function() {
+const width = 960;
+const height = 500;
 
-	var map = d3.select("#map")
+function initialise() {
+	var map = createMap();
+	generateMap(map);
+	styleMap();
+}
+
+function createMap() {
+	return map = d3.select("#map-container")
 		.append("svg")
-		.attr("width", 960)
-		.attr("height", 500); 
-
-	path = d3.geoPath().projection(projection);
-
-	var projection = d3
-			.geoMercator()
-			.scale(160)	
-			.rotate([-0.25, 0.25, 0])
-			.center([139.0032936, 36.3219088]); 
-
-	//var test = [{"type":"Feature","geometry":{"coordinates":[-73.856077,40.848447],"type":"Point"},"properties":{"_id":"55cba2476c522cafdb053add","location":{"coordinates":[-73.856077,40.848447],"type":"Point"},"name":"Morris Park Bake Shop"}}];
-
-	d3.json("http://localhost:3000/api/map")
-	  .then(function(data){
-			map.selectAll("path")
-				.data(data.features)
-				.enter()
-				.append("path")
-				.attr("d", path) 
-				.attr("fill", "green")
-				.attr("fill-opacity", 0.5)
-				.attr("stroke", "#222");    
-	});
+		.attr("width", width).attr("height", height);
 }
 
 /*
-svg.selectAll(".pin")
-  .data(places)
-  .enter().append("circle", ".pin")
-  .attr("r", 5)
-  .attr("transform", function(d) {
-    return "translate(" + projection([
-      d.location.longitude,
-      d.location.latitude
-    ]) + ")";
-  });
+	- Makes API Request to get Map JSON
+	- Calculate center of map
+	- Determine the bounds of the map
 */
+
+function generateMap(map) {
+	d3.json("http://localhost:3000/api/map")
+	  .then(function(data){
+	  		var center = d3.geoCentroid(data)
+		    var scale  = 150;
+		    var offset = [width/2, height/2];
+		    var projection = d3.geoMercator().scale(scale).center(center)
+		    	.translate(offset);
+
+      		var path = d3.geoPath().projection(projection);
+
+	        var bounds  = path.bounds(data);
+	      	var hscale  = scale*width  / (bounds[1][0] - bounds[0][0]);
+	      	var vscale  = scale*height / (bounds[1][1] - bounds[0][1]);
+	      	var scale   = (hscale < vscale) ? hscale : vscale;
+	      	var offset  = [width - (bounds[0][0] + bounds[1][0])/2,
+	                        height - (bounds[0][1] + bounds[1][1])/2];
+
+		    projection = d3.geoMercator().center(center).scale(scale).translate(offset);
+			path = path.projection(projection);
+
+			projectMap(data, path);
+	});
+}
+
+function projectMap(data,path) {
+
+  	map.selectAll("path").data(data.features).enter().append("path")
+	.attr("d", path)
+	.style("fill", "red")
+	.style("stroke-width", "1")
+	.style("stroke", "black");
+
+  	map.append("rect").attr('width', width).attr('height', height)
+		.style('stroke', 'black').style('fill', 'none');
+}
+
+window.onload = function() {
+	initialise();
+}
