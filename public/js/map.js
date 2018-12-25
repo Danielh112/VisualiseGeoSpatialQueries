@@ -3,15 +3,25 @@ const height = 500;
 
 function initialise() {
 	var map = createMap();
+	var toolTip = createToolTip();
 	generateMap(map);
-	styleMap();
 }
 
 function createMap() {
 	return map = d3.select("#map-container")
 		.append("svg")
-		.attr("width", width).attr("height", height);
+		.attr("width", width).attr("height", height)
+		.append("g");
 }
+
+function createToolTip() {
+	// Define the div for the tooltip
+	return div = d3.select("#map-container")
+	.append("div")
+	.attr("class", "tooltip")
+	.style("opacity", 0);
+}
+
 
 /*
 	- Makes API Request to get Map JSON
@@ -38,7 +48,7 @@ function generateMap(map) {
 	                        height - (bounds[0][1] + bounds[1][1])/2];
 
 		    projection = d3.geoMercator().center(center).scale(scale).translate(offset);
-			path = path.projection(projection);
+				path = path.projection(projection);
 
 			projectMap(data, path);
 	});
@@ -46,11 +56,25 @@ function generateMap(map) {
 
 function projectMap(data,path) {
 
-  	map.selectAll("path").data(data.features).enter().append("path")
+  map.selectAll("path").data(data.features).enter().append("path")
 	.attr("d", path)
 	.style("fill", "red")
 	.style("stroke-width", "1")
-	.style("stroke", "black");
+	.style("stroke", "black")
+	.on("click", function(d) {
+		div.transition()
+			.duration(200)
+			.style("opacity", .9);
+
+		div.html(d.properties.name)
+		.style("left", (d3.event.pageX) + "px")
+		.style("top", (d3.event.pageY - 28) + "px");;
+		})
+	.on("mouseout", function(d) {
+		div.transition()
+			.duration(500)
+			.style("opacity", 0);
+		});;
 
   	map.append("rect").attr('width', width).attr('height', height)
 		.style('stroke', 'black').style('fill', 'none');
