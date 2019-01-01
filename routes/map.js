@@ -2,13 +2,9 @@ const mongodb = require('mongodb')
 const express = require('express');
 const router = express.Router();
 const MongoClient = require('mongodb').MongoClient;
-var GeoJSON = require('geojson');
-
-const map = {
-  url: 'mongodb://172.17.0.2:27017/',
-  db: 'spatialDB',
-  collection: 'spatialObj'
-}
+const GeoJSON = require('geojson');
+const config = require('../config/config');
+const map = config.defaultMapConnection;
 
 router.get('/', async (req, res) => {
   const client = await establishConn();
@@ -22,7 +18,6 @@ router.get('/', async (req, res) => {
   });
 });
 
-// MOVE OUT
 function establishConn() {
   return new Promise((resolve, reject) => {
     MongoClient.connect(map.url, { useNewUrlParser: true }, function (err, client) {

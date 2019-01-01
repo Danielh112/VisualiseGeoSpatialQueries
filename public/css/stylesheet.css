@@ -1,13 +1,24 @@
 body {
-	/*background-color: #C7D8C6;*/
+  /*background-color: #C7D8C6;*/
+  font-family: 'Lato';
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  font-family: 'Montserrat';
 }
 
 .nav {
-	/*background-color: #A9B7CD; */
+  /*background-color: #A9B7CD; */
 }
 
-#map-container{
-	text-align: center;
+#map-container {
+  text-align: center;
 }
 
 div.tooltip {
@@ -15,7 +26,7 @@ div.tooltip {
   text-align: center;
   min-width: 60px;
   height: 28px;
-	max-width: 300px;
+  max-width: 300px;
   padding: 8px;
   font: 12px sans-serif;
   background: lightsteelblue;
