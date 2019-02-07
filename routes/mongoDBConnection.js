@@ -17,7 +17,7 @@ router.get('/testConnection', async (req, res) => {
 
 router.get('/getCollections', async (req, res) => {
   const client = await establishConn(req);
-  const db = client.db(map.db);
+  const db = client.db(req.query.database);
   db.listCollections().toArray(function(err, collections) {
     if (err) throw err;
     res.status(200).send(
