@@ -1,40 +1,168 @@
 <!doctype html>
 
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Visualise Spatial Queries</title>
 
-  <!-- Bootstrap -->
-   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-  <!-- jquery -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script> <!-- Change to min file -->
+  <!-- jquery + libaries -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script> -->
+  <script type="text/javascript" src="js/libaries/jquery.easing.1.3.js"></script>
+  <!-- Bootstrap + libaries-->
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <!-- D3 -->
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <!-- /public/js/.. -->
-  <script type="text/javascript" src="js/map.js"></script>
+  <script type="text/javascript" src="js/createConnection.js"></script>
   <!-- /public/css/.. -->
-  <link rel="stylesheet" type="text/css" href="/css/stylesheet.css">.
-
-  <title>Visualise Spatial Queries</title>
+  <link rel="stylesheet" type="text/css" href="/css/stylesheet.css">
 
 </head>
 
-<body>
+<body class=landing-page>
 
   <nav class="navbar navbar-default nav">
-  <div class="container-fluid">
-    <div class="navbar-header">
+    <div class="container-fluid">
+      <div class="navbar-header">
         <p class="h3 navbar-text">Visualise MongoDB Spatial Queries</p>
+      </div>
+    </div>
+  </nav>
+
+
+  <div class="connection-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-offset-2 col-md-8 connection-input">
+          <form>
+
+            <!-- Page 1: Hostname, Port -->
+            <fieldset>
+              <div class="jumbotron jumbotron-fluid vertical-center">
+                <h2 class="display-4 landing-title landing-title-center"><span>Connect your MongoDB Repository</span></h2>
+                <label id="hostnameLabel" class="form-label" for="hostname">Hostname</label>
+                <input type="text" class="form-control form-input" id="hostname" placeholder="localhost" value="172.17.0.2">
+                <label id="portLabel" class="form-label" for="hostname">Port</label>
+                <input type="number" class="form-control form-input" id="port" placeholder="27017" value="27017">
+                <div class="form-navigation">
+                  <input type="button" name="next" class="next btn-default pull-right" value="Next" />
+                  <div class="form-navigation">
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Page 2: Authentication (none/Username and password) -->
+            <fieldset>
+              <div class="jumbotron jumbotron-fluid vertical-center">
+                <h2 class="display-4 landing-title landing-title-center"><span>Connect your MongoDB Repository</span></h2>
+                <label class="form-label" for="hostname">Authentication</label>
+
+                <div class="dropdown auth-dropdown">
+                  <a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle form-dropdown" href="#">
+                    <span id="selected">None </span><span class="caret pull-right form-caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">None</a></li>
+                    <li><a href="#">Username/Password</a></li>
+                  </ul>
+                </div>
+                <div class="authentication-details">
+                  <hr class="form-hr">
+                  <label id="usernameLabel" class="form-label" for="username">username</label>
+                  <input type="text" class="form-control form-input" id="username" placeholder="Username">
+                  <label id="passwordLabel" class="form-label" for="password">Password</label>
+                  <input type="password" class="form-control form-input" id="password" placeholder="Password">
+                </div>
+                <div class="form-navigation">
+                  <input type="button" name="next" class="next btn-default pull-right" value="Next" />
+                  <div class="form-navigation">
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Page 3: Database Name -->
+            <fieldset>
+              <div class="jumbotron jumbotron-fluid vertical-center">
+                <div class="container">
+                  <h2 class="display-4 landing-title landing-title-center connection-successful"><span>Connect your MongoDB Repository</span></h2>
+                  <!--<div>
+                    <h3 class="display-4 landing-subtitle"><span>Summary</span></h3>
+                    <div id="url">Url:</div>
+                    <div id="authentication">Auth: </div>
+                  </div> -->
+                  <label id="databaseLabel" class="form-label" for="hostname">Database Name</label>
+                  <input type="text" class="form-control form-input" id="database" placeholder="Database Name" value="services">
+                  <div class="form-navigation">
+                    <input type="button" name="Test Connection" class="testConnection btn-default pull-right" value="Test Connection" />
+                    <div class="form-navigation">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Connection Successful Modal  -->
+              <div class="modal fade conn-modal" id="conn-successful-modal">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="conn-modal-title">
+                      Connection Successful
+                    </div>
+                    <div class="modal-footer">
+                      <input type="button" name="Connection Successful" class="next btn-default retrieveCollections" value="OK" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Connection Error Modal  -->
+              <div class="modal fade conn-modal" id="conn-unsuccessful-modal">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="conn-modal-title">
+                      Connection Error
+                    </div>
+                    <div id="conn-unsuccessful-content" class=modal-body></div>
+                    <div class="modal-footer">
+                      <input type="button" name="Connection Successful" class="btn-default" data-dismiss="modal" value="OK" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Page 4: Collection List -->
+            <fieldset>
+              <div class="jumbotron jumbotron-fluid vertical-center">
+                <div class="container">
+                  <h2 class="display-4 landing-title"><span>Connect your MongoDB Repository</span></h2>
+                  <label class="form-label" for="hostname">Select the collection you wish to visualise</label>
+                  <div>
+                    <table id="collection-list" class="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col" class="row-id">#</th>
+                          <th scope="col" class="row-collection-name">Name</th>
+                        </tr>
+                      </thead>
+                      <tbody id="collection-list-items">
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="form-navigation-col">
+                    <input type="button" name="Connect" class="displayMap btn-default pull-right" value="Connect" />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-</nav>
-
-<div id="map-container">
-
-</div>
-
-<div id ="tooltip">
-</div>
-
 </body>
 </html>

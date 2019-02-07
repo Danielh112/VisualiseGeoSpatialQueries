@@ -1,9 +1,9 @@
 var config = {};
 
 config.defaultMapConnection = {
-  url: 'mongodb://localhost:27017/',
-  db: 'GeoDB',
-  collection: 'Restaurants'
+  url: 'mongodb://172.17.0.2:27017/',
+  db: 'services',
+  collection: 'geodb'
 }
 
 module.exports = config;
