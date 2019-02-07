@@ -200,6 +200,11 @@ fieldset:not(:first-of-type) {
   padding-top: 25px;
 }
 
+.form-navigation-col {
+  width: 90%;
+  padding-top: 7px;
+}
+
 .form-caret {
   margin-top: 8px;
 }
@@ -216,6 +221,7 @@ fieldset:not(:first-of-type) {
 #collection-list {
   table-layout: fixed;
   white-space: nowrap;
+  width: 90%;
 }
 
 #collection-list td {
@@ -223,6 +229,22 @@ fieldset:not(:first-of-type) {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+#collection-list-items {
+  display: block;
+  height: 195px;
+  overflow: auto;
+}
+
+#collection-list > thead, tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  #collection-list > thead {
+      width: calc( 100% - 1em );
+    }
 
 #collection-list.table-striped > tbody > tr:nth-child(odd) > td,
 .table-striped > tbody > tr:nth-child(odd) > th {
@@ -244,12 +266,12 @@ fieldset:not(:first-of-type) {
    color: #FFF;
 }
 
-#collection-list .row-ID {
-  width: 10%;
+#collection-list .row-id {
+  width: 15%;
 }
 
 #collection-list .row-collection-name {
-  width: 90%;
+  width: 85%;
 }
 
 .selected {
@@ -309,5 +331,5 @@ div.tooltip {
   background: lightsteelblue;
   border: 0px;
   border-radius: 8px;
-  /*pointer-events: none; */
+  pointer-events: none;
 }

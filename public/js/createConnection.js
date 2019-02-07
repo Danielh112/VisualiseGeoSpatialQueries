@@ -141,7 +141,7 @@ function retrieveCollectionList() {
     dataType: 'json',
     success: function(response) {
       $.each(response, function(i, item) {
-        $('#collection-list-items').append('<tr><td>' + i + '</td><td>' + item.name + '</td></tr>');
+        $('#collection-list-items').append('<tr><td class="row-id">' + i + '</td><td class="row-collection-name">' + item.name + '</td></tr>');
       });
     },
     error: function(err) {

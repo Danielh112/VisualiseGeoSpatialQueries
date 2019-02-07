@@ -104,7 +104,7 @@ function projectMap(data, path) {
     .style('fill', 'red')
     .style('stroke-width', '1')
     .style('stroke', 'black')
-    .on('click', function(d) {
+    .on('mouseover', function(d) {
       tipSelection(d);
     })
     .on('mouseout', function(d) {
