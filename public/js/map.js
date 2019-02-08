@@ -1,6 +1,10 @@
 const width = 960;
 const height = 500;
 
+const zoom = d3.zoom()
+    .scaleExtent([1, 8])
+    .on("zoom", zoomed);
+
 window.onload = function() {
   initialise();
 }
@@ -16,6 +20,7 @@ function createMap() {
   return map = d3.select('#map-container')
     .append('svg')
     .attr('width', width).attr('height', height)
+    .call(zoom)
     .append('g');
 }
 
@@ -40,8 +45,6 @@ function retrieveData() {
   let password = sessionStorage.getItem('password');
   let database = sessionStorage.getItem('database');
   let collection = sessionStorage.getItem('collection');
-
-  console.log(collection);
 
   return new Promise((resolve, reject) => {
     $.ajax({
@@ -75,24 +78,20 @@ function retrieveData() {
 */
 
 function generateMap(map, data) {
-  var center = d3.geoCentroid(data)
-  var scale = 150;
-  var offset = [width / 2, height / 2];
-  var projection = d3.geoMercator().scale(scale).center(center)
-    .translate(offset);
-
+  var projection = d3.geoAlbers();
   var path = d3.geoPath().projection(projection);
 
-  var bounds = path.bounds(data);
-  var hscale = scale * width / (bounds[1][0] - bounds[0][0]);
-  var vscale = scale * height / (bounds[1][1] - bounds[0][1]);
-  var scale = (hscale < vscale) ? hscale : vscale;
-  var offset = [width - (bounds[0][0] + bounds[1][0]) / 2,
-    height - (bounds[0][1] + bounds[1][1]) / 2
-  ];
+  projection
+        .scale(1)
+        .translate([0, 0]);
 
-  projection = d3.geoMercator().center(center).scale(scale).translate(offset);
-  path = path.projection(projection);
+  var b = path.bounds(data),
+        s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
+        t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+
+  projection
+      .scale(s)
+      .translate(t);
 
   projectMap(data, path);
 }
@@ -111,8 +110,8 @@ function projectMap(data, path) {
       tipMouseOut();
     });
 
-  map.append('rect').attr('width', width).attr('height', height)
-    .style('stroke', 'black').style('fill', 'none');
+  /*map.append('rect').attr('width', width).attr('height', height)
+    .style('stroke', 'black').style('fill', 'none');*/
 }
 
 function tipSelection(node) {
@@ -129,4 +128,9 @@ function tipMouseOut() {
   tip.transition()
     .duration(500)
     .style('opacity', 0);
+}
+
+function zoomed() {
+  map.style("stroke-width", 1.5 / d3.event.transform.k + "px");
+  map.attr("transform", d3.event.transform);
 }

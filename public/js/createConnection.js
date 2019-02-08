@@ -137,6 +137,7 @@ function retrieveCollectionList() {
       url: encodeURIComponent(url),
       username: username,
       password: password,
+      database: database
     },
     dataType: 'json',
     success: function(response) {

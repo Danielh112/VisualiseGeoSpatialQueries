@@ -318,6 +318,10 @@ fieldset:not(:first-of-type) {
 
 #map-container {
   text-align: center;
+  margin: 0 auto;
+  width: 960px;
+  height: 500px;
+  border: 1px solid black;
 }
 
 div.tooltip {
