@@ -319,7 +319,7 @@ fieldset:not(:first-of-type) {
 #map-container {
   text-align: center;
   margin: 0 auto;
-  width: 960px;
+  width: auto;
   height: 500px;
   border: 1px solid black;
 }
@@ -327,6 +327,9 @@ fieldset:not(:first-of-type) {
 div.tooltip {
   position: absolute;
   text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
   min-width: 60px;
   height: 28px;
   max-width: 300px;
@@ -335,5 +338,20 @@ div.tooltip {
   background: lightsteelblue;
   border: 0px;
   border-radius: 8px;
-  pointer-events: none;
+  pointer-events: none !important;
+}
+
+.no-padding {
+   padding: 0px !important;
+   margin: 0 !important;
+}
+
+/* Map Tools */
+.selection {
+  fill: #ADD8E6;
+  stroke: #ADD8E6;
+  fill-opacity: 0.3;
+  stroke-opacity: 0.7;
+  stroke-width: 2;
+  stroke-dasharray: 5, 5;
 }

@@ -10,10 +10,19 @@
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script> <!-- Change to min file -->
   <!-- D3 -->
   <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://d3js.org/d3-path.v1.min.js"></script>
   <!-- /public/js/.. -->
   <script type="text/javascript" src="js/map.js"></script>
   <!-- /public/css/.. -->
   <link rel="stylesheet" type="text/css" href="/css/stylesheet.css">
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+   crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+   integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+   crossorigin=""></script>
+
 
   <title>Visualise Spatial Queries</title>
 
@@ -29,11 +38,29 @@
   </div>
 </nav>
 
-<div id="map-container">
-</div>
+<div class="container">
+   <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-2">
+                      <h4>Collection Info:</h4>
 
-<div id ="tooltip">
-</div>
+                    </div>
+                    <div class="col-md-8 no-padding">
+                      <div id="map-container">
+                      </div>
+                      <div id ="tooltip">
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <h4>Tools:</h4>
+                      <input type="button" name="geowithin" class="geowithin btn-default" value="geowithin" />
 
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

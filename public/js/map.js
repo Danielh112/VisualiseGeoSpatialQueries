@@ -1,36 +1,42 @@
-const width = 960;
-const height = 500;
+const geojsonMarkers = {
+  radius: 8,
+  fillColor: '#ff7800',
+  color: '#000',
+  weight: 1,
+  opacity: 1,
+  fillOpacity: 0.8
+};
 
-const zoom = d3.zoom()
-    .scaleExtent([1, 8])
-    .on("zoom", zoomed);
-
-window.onload = function() {
+$(function() {
   initialise();
-}
+});
 
 async function initialise() {
-  var map = createMap();
-  createToolTip();
+  map = createMap();
   mapData = await retrieveData();
-  generateMap(map, mapData);
+  createToolTip();
+  geoJSONLayer = appendGeoJson(map, mapData);
+  centerMap(map, geoJSONLayer);
 }
 
+
+/*
+Create Map and append open street maps as background to map
+*/
 function createMap() {
-  return map = d3.select('#map-container')
-    .append('svg')
-    .attr('width', width).attr('height', height)
-    .call(zoom)
-    .append('g');
+  const map = L.map('map-container', {
+    attributionControl: false
+  }).setView([51.505, -0.09], 13);
+  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGFuaWVsaDExMiIsImEiOiJjanJ4ZjFmM24wa3JtNDludmxlYzhndmoxIn0._VvtW1VgcpUNRqFchxOl7A', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'your.mapbox.access.token'
+  }).addTo(map);
+
+  return map
 }
 
-function createToolTip() {
-  // Define the div for the tooltip
-  return tip = d3.select('#map-container')
-    .append('div')
-    .attr('class', 'tooltip')
-    .style('opacity', 0);
-}
 
 /*
 Retrieve data from /map API
@@ -68,69 +74,61 @@ function retrieveData() {
         reject(err);
       }
     });
-});
+  });
 }
 
-/*
-	- Makes API Request to get Map JSON
-	- Calculate center of map
-	- Determine the bounds of the map
-*/
-
-function generateMap(map, data) {
-  var projection = d3.geoAlbers();
-  var path = d3.geoPath().projection(projection);
-
-  projection
-        .scale(1)
-        .translate([0, 0]);
-
-  var b = path.bounds(data),
-        s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
-        t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
-
-  projection
-      .scale(s)
-      .translate(t);
-
-  projectMap(data, path);
+/* Append Geojson to map */
+function appendGeoJson(map, mapData) {
+  return geoJson = L.geoJSON(mapData, {
+      onEachFeature: tipMouseOver,
+      pointToLayer: function(feature, latlng) {
+        return L.circleMarker(latlng, geojsonMarkers);
+      }
+    }).on('mouseout', tipMouseOut)
+    .addTo(map);
 }
 
-function projectMap(data, path) {
-
-  map.selectAll('path').data(data.features).enter().append('path')
-    .attr('d', path)
-    .style('fill', 'red')
-    .style('stroke-width', '1')
-    .style('stroke', 'black')
-    .on('mouseover', function(d) {
-      tipSelection(d);
-    })
-    .on('mouseout', function(d) {
-      tipMouseOut();
-    });
-
-  /*map.append('rect').attr('width', width).attr('height', height)
-    .style('stroke', 'black').style('fill', 'none');*/
+/* Center map based on the geoJson Uploaded */
+function centerMap(map, geoJSON) {
+  map.fitBounds(geoJSON.getBounds());
 }
 
-function tipSelection(node) {
-  tip.transition()
-    .duration(200)
-    .style('opacity', .9);
-
-  tip.html('<b>Location: </b>' + node.properties.name)
-    .style('left', (d3.event.pageX) + 'px')
-    .style('top', (d3.event.pageY - 28) + 'px');
+/* Create tool tip */
+function createToolTip() {
+  return tip = d3.select('#map-container')
+    .append('div')
+    .attr('class', 'tooltip')
+    .style('opacity', 0);
 }
 
+/* On node mouse over
+    1. Display tip of information relating to point etc.
+      Note: If the point doesn't have any relevant properties don't
+      display tooltip*/
+function tipMouseOver(feature, layer) {
+  layer.on('mouseover', function(e) {
+
+    const point = map.latLngToContainerPoint(e.latlng);
+    let popupContents;
+    if (e.target.feature.properties.name) {
+      popupContents = e.target.feature.properties.name
+    } else {
+      return;
+    }
+
+    tip.transition()
+      .duration(200)
+      .style('opacity', .9);
+
+    tip.html('<b>Location: </b> ' + popupContents)
+      .style('left', (point.x) + 'px')
+      .style('top', (point.y - 28) + 'px');
+  });
+}
+
+/* On Tooltip mouse out */
 function tipMouseOut() {
   tip.transition()
     .duration(500)
     .style('opacity', 0);
-}
-
-function zoomed() {
-  map.style("stroke-width", 1.5 / d3.event.transform.k + "px");
-  map.attr("transform", d3.event.transform);
 }
