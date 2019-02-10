@@ -13,15 +13,19 @@
   <script src="https://d3js.org/d3-path.v1.min.js"></script>
   <!-- /public/js/.. -->
   <script type="text/javascript" src="js/map.js"></script>
+  <script type="text/javascript" src="js/mapTools.js"></script>
   <!-- /public/css/.. -->
   <link rel="stylesheet" type="text/css" href="/css/stylesheet.css">
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
    integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
    crossorigin=""/>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw-src.css"
+    />
   <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
    integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
    crossorigin=""></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
 
   <title>Visualise Spatial Queries</title>
@@ -42,21 +46,27 @@
    <div class="row">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-2">
+                    <!--<div class="col-md-2">
                       <h4>Collection Info:</h4>
 
-                    </div>
+                    </div> -->
                     <div class="col-md-8 no-padding">
                       <div id="map-container">
                       </div>
                       <div id ="tooltip">
                       </div>
                     </div>
-                    <div class="col-md-2">
-                      <h4>Tools:</h4>
-                      <input type="button" name="geowithin" class="geowithin btn-default" value="geowithin" />
-
-
+                    <div class="col-md-4 mapToolBar">
+                      <h2 class="display-4 landing-title tool-section-title"><span>Tools:</span></h2>
+                      <div class="toolSection">
+                        Near
+                      </div>
+                      <div class="toolSection">
+                        Intersects
+                      </div>
+                      <div class="toolSection">
+                        Witin
+                      </div>
                     </div>
                 </div>
             </div>

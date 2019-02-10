@@ -321,7 +321,9 @@ fieldset:not(:first-of-type) {
   margin: 0 auto;
   width: auto;
   height: 500px;
-  border: 1px solid black;
+  -webkit-box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.28);
+  -moz-box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.28);
+  box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.28);
 }
 
 div.tooltip {
@@ -354,4 +356,23 @@ div.tooltip {
   stroke-opacity: 0.7;
   stroke-width: 2;
   stroke-dasharray: 5, 5;
+}
+
+.mapToolBar {
+  background: #4CA84A !important;
+  height: 500px;
+  -webkit-box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.28);
+  -moz-box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.28);
+  box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.28);
+  border-left: 4px solid #F5F5F5;
+}
+.tool-section-title{
+  padding-bottom: 25px;
+}
+
+.toolSection {
+  color: #f5f5f5;
+  font-weight: 700;
+  font-size: 14px;
+  padding-bottom: 40px;
 }

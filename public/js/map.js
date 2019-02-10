@@ -1,3 +1,7 @@
+let map;
+let drawnItems;
+let drawControl;
+
 const geojsonMarkers = {
   radius: 8,
   fillColor: '#ff7800',
@@ -6,6 +10,7 @@ const geojsonMarkers = {
   opacity: 1,
   fillOpacity: 0.8
 };
+
 
 $(function() {
   initialise();
@@ -17,18 +22,18 @@ async function initialise() {
   createToolTip();
   geoJSONLayer = appendGeoJson(map, mapData);
   centerMap(map, geoJSONLayer);
+  initialiseMapTools();
 }
-
 
 /*
 Create Map and append open street maps as background to map
 */
 function createMap() {
-  const map = L.map('map-container', {
+  map = L.map('map-container', {
     attributionControl: false
   }).setView([51.505, -0.09], 13);
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGFuaWVsaDExMiIsImEiOiJjanJ4ZjFmM24wa3JtNDludmxlYzhndmoxIn0._VvtW1VgcpUNRqFchxOl7A', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    attribution: 'MapgenerateSelectionWindow data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
     id: 'mapbox.streets',
     accessToken: 'your.mapbox.access.token'
@@ -132,3 +137,24 @@ function tipMouseOut() {
     .duration(500)
     .style('opacity', 0);
 }
+
+/* Initialise Map Tools */
+function initialiseMapTools() {
+  drawnItems = new L.FeatureGroup();
+  map.addLayer(drawnItems);
+  drawControl = new L.Control.Draw({
+    edit: {
+      featureGroup: drawnItems
+    }
+  });
+  map.addControl(drawControl);
+}
+
+$(function() {
+  map.on('draw:created', function(e) {
+    const type = e.layerType,
+      layer = e.layer;
+
+  drawnItems.addLayer(layer);
+  });
+});
