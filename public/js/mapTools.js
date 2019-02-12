@@ -1,12 +1,14 @@
-$(function() {
-  map.on(L.Draw.Event.CREATED, function (e) {
-     var type = e.layerType,
-         layer = e.layer;
-     if (type === 'marker') {
-         // Do marker specific actions
-     }
-     // Do whatever else you need to. (save to db; add to map etc)
-     map.addLayer(layer);
-  });
-
+$(document).ready(function() {
+  $(document).on('click', '.panel-heading', function() {
+    var $this = $(this);
+    if (!$this.hasClass('panel-collapsed')) {
+      $this.parents('.panel').find('.panel-body').slideUp();
+      $this.addClass('panel-collapsed');
+      $this.find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+    } else {
+      $this.parents('.panel').find('.panel-body').slideDown();
+      $this.removeClass('panel-collapsed');
+      $this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+    }
+  })
 });

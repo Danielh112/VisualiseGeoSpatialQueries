@@ -1,31 +1,28 @@
 <!doctype html>
 
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
 
   <!-- Bootstrap -->
-   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <!-- jquery -->
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script> <!-- Change to min file -->
   <!-- D3 -->
   <script src="https://d3js.org/d3.v5.min.js"></script>
-  <script src="https://d3js.org/d3-path.v1.min.js"></script>
   <!-- /public/js/.. -->
   <script type="text/javascript" src="js/map.js"></script>
   <script type="text/javascript" src="js/mapTools.js"></script>
   <!-- /public/css/.. -->
   <link rel="stylesheet" type="text/css" href="/css/stylesheet.css">
   <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-   crossorigin=""/>
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw-src.css"
-    />
-  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
-   integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
-   crossorigin=""></script>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin="" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw-src.css" />
+  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
 
   <title>Visualise Spatial Queries</title>
@@ -35,42 +32,59 @@
 <body>
 
   <nav class="navbar navbar-default nav">
-  <div class="container-fluid">
-    <div class="navbar-header">
+    <div class="container-fluid">
+      <div class="navbar-header">
         <p class="h3 navbar-text">Visualise MongoDB Spatial Queries</p>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
-<div class="container">
-   <div class="row">
-            <div class="col-md-12">
-                <div class="row">
-                    <!--<div class="col-md-2">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="row">
+          <!--<div class="col-md-2">
                       <h4>Collection Info:</h4>
 
                     </div> -->
-                    <div class="col-md-8 no-padding">
-                      <div id="map-container">
-                      </div>
-                      <div id ="tooltip">
-                      </div>
-                    </div>
-                    <div class="col-md-4 mapToolBar">
-                      <h2 class="display-4 landing-title tool-section-title"><span>Tools:</span></h2>
-                      <div class="toolSection">
-                        Near
-                      </div>
-                      <div class="toolSection">
-                        Intersects
-                      </div>
-                      <div class="toolSection">
-                        Witin
-                      </div>
-                    </div>
-                </div>
+          <div class="col-md-8 no-padding">
+            <div id="map-container">
             </div>
+            <div id="tooltip">
+            </div>
+          </div>
+          <div class="col-md-4 mapToolBar">
+            <h2 class="display-4 landing-title tool-section-title"><span>Tools</span></h2>
+            Generate geospatial queries by selecting one of the following tools...
+
+            <div class="panel toolSection">
+              <div class="panel-heading panel-collapsed clickable">
+                <h3 class="panel-title"><i class="fas fa-location-arrow fa-2x"></i> Near</h3>
+                <span class="pull-right panel-collapsed"><i class="fas fa-plus"></i></span>
+              </div>
+              <div class="panel-body">Panel content</div>
+            </div>
+
+            <div class="panel toolSection">
+              <div class="panel-heading clickable panel-collapsed">
+                <h3 class="panel-title"><i class="fas fa-map-marked-alt fa-2x"></i> Intersects</h3>
+                <span class="pull-right"><i class="fas fa-plus"></i></span>
+              </div>
+              <div class="panel-body">Panel content</div>
+            </div>
+
+            <div class="panel toolSection">
+              <div class="panel-heading panel-collapsed clickable">
+                <h3 class="panel-title"><i class="fas fa-globe fa-2x"></i> Within</h3>
+                <span class="pull-right panel-collapsed"><i class="fas fa-plus"></i></span>
+              </div>
+              <div class="panel-body">Panel content</div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </body>
+
 </html>
