@@ -3,7 +3,10 @@ let selectedRow;
 let selectedCollection;
 
 /* Transition in progress */
-let animating;
+let animating = false;
+
+/* Connection test in progress */
+let connetionTest = false;
 
 window.onload = function() {
 
@@ -11,7 +14,11 @@ window.onload = function() {
     nextTab($(this).closest('fieldset'));
   });
 
-  $('.testConnection').click(function() {
+  $(document).on('keydown', '.form-input-empty', function (e) {
+    $(this).removeClass('form-input-empty');
+  });
+
+  $('.test-connection').click(function() {
     testConnection();
   });
 
@@ -23,19 +30,20 @@ window.onload = function() {
     /* Only used in development environment,
     session storage not to be used in production */
     storeLoginCredentials();
+
     displayMap();
   });
 
   /* Authentication: Set dropdown Text */
-  $('.dropdown-menu a').click(function(event){
-      event.preventDefault();
-      toggleAuthenticationSelection($(this).text());
-    });
+  $('.dropdown-menu a').click(function(event) {
+    event.preventDefault();
+    toggleAuthenticationSelection($(this).text());
+  });
 
   /* Hightlight selected Collection */
   $('#collection-list').on('click', 'tbody tr', function() {
-    let row = $(this).closest('tr');
-    let collectionnames = row.find('td:nth-child(2)');
+    const row = $(this).closest('tr');
+    const collectionnames = row.find('td:nth-child(2)');
     toggleCollectionSelection(row, collectionnames);
   });
 }
@@ -51,11 +59,13 @@ Navigate to the next fieldset
 
 function nextTab(current_fs) {
 
-  if (validateForm(current_fs) && !animating) {
+  if (validateForm(current_fs) == true && !animating) {
     animating = true;
 
     next_fs = current_fs.next('fieldset');
     next_fs.show();
+
+    $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 
     current_fs.animate({
       opacity: 0
@@ -85,7 +95,14 @@ function nextTab(current_fs) {
 
 /* Validate fields are not empty */
 function validateForm(fieldset) {
-  return true;
+  let nextPage = true;
+  $('#' + fieldset[0].id + ' input[type != button]').each(function(key, value) {
+    if ($(this).val().length === 0 && $(this).is(':visible')) {
+      $(this).addClass('form-input-empty');
+      nextPage = false;
+    }
+  });
+  return nextPage;
 }
 
 /*
@@ -93,29 +110,39 @@ Validate the MongoDB instance details are validateForm
 */
 function testConnection() {
 
-  let url = $('#hostname').val() + ':' + $('#port ').val();
-  let username = $('#username').val();
-  let password = $('#password').val();
-  let database = $('#database').val();
+  if (!connetionTest) {
+    connetionTest = true;
 
-  $.ajax({
-    url: 'http://localhost:3000/api/mongoDB/testConnection',
-    type: 'get',
-    data: {
-      url: encodeURIComponent(url),
-      username: username,
-      password: password,
-    },
-    dataType: 'json',
-    success: function(response) {
-      $('#conn-successful-modal').modal('toggle');
-    },
-    error: function(err) {
-      let errMsg = $.parseJSON(err.responseText);
-      $('#conn-unsuccessful-content').append(errMsg['error']['message']);
-      $('#conn-unsuccessful-modal').modal('toggle');
-    }
-  });
+    showLoading('.test-connection');
+
+    const url = $('#hostname').val() + ':' + $('#port ').val();
+    const username = $('#username').val();
+    const password = $('#password').val();
+    const database = $('#database').val();
+
+    $.ajax({
+      url: 'http://localhost:3000/api/mongoDB/testConnection',
+      type: 'get',
+      data: {
+        url: encodeURIComponent(url),
+        username: username,
+        password: password,
+      },
+      dataType: 'json',
+      success: function(response) {
+        $('#conn-successful-modal').modal('toggle');
+        connetionTest = false;
+        hideLoading('.test-connection', 'Test Connection');
+      },
+      error: function(err) {
+        const errMsg = $.parseJSON(err.responseText);
+        $('#conn-unsuccessful-content').append(errMsg['error']['message']);
+        $('#conn-unsuccessful-modal').modal('toggle');
+        connetionTest = false;
+        hideLoading('.test-connection', 'Test Connection');
+      }
+    });
+  }
 }
 
 /*
@@ -125,13 +152,13 @@ associated with users DB
 
 function retrieveCollectionList() {
 
-  let url = $('#hostname').val() + ':' + $('#port ').val();
-  let username = $('#username').val();
-  let password = $('#password').val();
-  let database = $('#database').val();
+  const url = $('#hostname').val() + ':' + $('#port ').val();
+  const username = $('#username').val();
+  const password = $('#password').val();
+  const database = $('#database').val();
 
   $.ajax({
-    url: 'http://localhost:3000/api/mongoDB/getCollections',
+    url: 'http://localhost:3000/api/mongoDB/collection',
     type: 'get',
     data: {
       url: encodeURIComponent(url),
@@ -157,32 +184,32 @@ function toggleAuthenticationSelection(selection) {
   if (selection == 'None') {
     $('.authentication-details').slideUp(400);
   } else {
-      $('.authentication-details').show();
+    $('.authentication-details').show();
   }
 }
 
 function toggleCollectionSelection(row, collectionNames) {
   $.each(collectionNames, function() {
-     collectionName = $(this).text();
-   });
+    collectionName = $(this).text();
+  });
 
-   /* No Class selected */
-  if(selectedCollection === undefined) {
-       row.addClass('selected');
-       selectedCollection = collectionName;
-       selectedRow = row;
-  /* Class already selected */
+  /* No Class selected */
+  if (selectedCollection === undefined) {
+    row.addClass('selected');
+    selectedCollection = collectionName;
+    selectedRow = row;
+    /* Class already selected */
   } else if (selectedCollection === collectionName) {
-       row.removeClass('selected');
-       selectedCollection = undefined;
-       selectedRow = undefined;
-  /* Selected New collection */
+    row.removeClass('selected');
+    selectedCollection = undefined;
+    selectedRow = undefined;
+    /* Selected New collection */
   } else {
-       selectedRow.removeClass('selected');
-       row.addClass('selected');
-       selectedCollection = collectionName;
-       selectedRow = row;
-     }
+    selectedRow.removeClass('selected');
+    row.addClass('selected');
+    selectedCollection = collectionName;
+    selectedRow = row;
+  }
 }
 
 /* Only used in development environment,
@@ -193,6 +220,18 @@ function storeLoginCredentials() {
   sessionStorage.setItem('password', $('#password').val());
   sessionStorage.setItem('database', $('#database').val());
   sessionStorage.setItem('collection', selectedCollection);
+}
+
+function showLoading(cssClass) {
+  $(cssClass).val('');
+  $(cssClass).removeClass('btn-default-hover');
+  $(cssClass).css('background-image', 'url(../images/loading.gif)');
+}
+
+function hideLoading(cssClass, val) {
+  $(cssClass).val(val);
+  $(cssClass).addClass('btn-default-hover');
+  $(cssClass).css('background-image', '');
 }
 
 function displayMap() {

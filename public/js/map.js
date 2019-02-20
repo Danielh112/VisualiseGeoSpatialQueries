@@ -23,6 +23,7 @@ async function initialise() {
   geoJSONLayer = appendGeoJson(map, mapData);
   centerMap(map, geoJSONLayer);
   initialiseMapTools();
+  mapDetails(mapData);
 }
 
 /*
@@ -70,7 +71,6 @@ function retrieveData() {
       },
       dataType: 'json',
       success: function(response) {
-        console.log(response);
         resolve(response);
       },
       error: function(err) {
@@ -104,6 +104,23 @@ function createToolTip() {
     .append('div')
     .attr('class', 'tooltip')
     .style('opacity', 0);
+}
+
+/* Display Information regarding to the collection inc,
+  collection name, total geospatial objects and total geospatial objects */
+function mapDetails(mapDetails) {
+  let collection = sessionStorage.getItem('collection');
+  $('#collectionInfo').append(collection);
+
+  let totalGeospatialObjects = 0;
+  $.each(mapDetails.features, function(i, item) {
+      if( Object.entries(item.geometry).length > 0) {
+        totalGeospatialObjects++;
+      }
+  });
+
+  $('#collectionGeospatialSize').append(totalGeospatialObjects);
+  $('#collectionSize').append(mapDetails.features.length);
 }
 
 /* On node mouse over

@@ -9,19 +9,50 @@ router.get('/testConnection', async (req, res) => {
   const client = await establishConn(req);
 
   var response = {
-    status  : 200,
-    success : 'Connection successfully established'
+    status: 200,
+    success: 'Connection successfully established'
   }
   res.end(JSON.stringify(response));
 });
 
-router.get('/getCollections', async (req, res) => {
+router.get('/collection', async (req, res) => {
   const client = await establishConn(req);
   const db = client.db(req.query.database);
   db.listCollections().toArray(function(err, collections) {
     if (err) throw err;
     res.status(200).send(
       collections
+    );
+  });
+});
+
+router.get('/collection/attributes', async (req, res) => {
+  let collection = req.query.collection;
+
+  const client = await establishConn(req);
+  const db = client.db(req.query.database);
+
+  var result = db.collection(collection).aggregate([{
+      "$project": {
+        "arrayofkeyvalue": {
+          "$objectToArray": "$$ROOT"
+        }
+      }
+    },
+    {
+      "$unwind": "$arrayofkeyvalue"
+    },
+    {
+      "$group": {
+        "_id": null,
+        "allkeys": {
+          "$addToSet": "$arrayofkeyvalue.k"
+        }
+      }
+    }
+  ]).toArray(function(err, result) {
+    res.status(200).send(
+      result[0].allkeys
     );
   });
 });
@@ -40,7 +71,7 @@ function establishConn(req) {
     url = 'mongodb://' + url + '/';
   }
 
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     MongoClient.connect(url, {
       useNewUrlParser: true
     }, function(err, client) {

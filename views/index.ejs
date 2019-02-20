@@ -41,7 +41,7 @@
           <form>
 
             <!-- Page 1: Hostname, Port -->
-            <fieldset>
+            <fieldset id="fs1">
               <div class="jumbotron jumbotron-fluid vertical-center">
                 <h2 class="display-4 landing-title landing-title-center"><span>Connect your MongoDB Repository</span></h2>
                 <label id="hostnameLabel" class="form-label" for="hostname">Hostname</label>
@@ -49,7 +49,7 @@
                 <label id="portLabel" class="form-label" for="hostname">Port</label>
                 <input type="number" class="form-control form-input" id="port" placeholder="27017" value="27017">
                 <div class="form-navigation">
-                  <input type="button" name="next" class="next btn-default pull-right" value="Next" />
+                  <input type="button" name="next" class="next btn-default btn-default-hover pull-right" value="Next" />
                   <div class="form-navigation">
                   </div>
                 </div>
@@ -57,7 +57,7 @@
             </fieldset>
 
             <!-- Page 2: Authentication (none/Username and password) -->
-            <fieldset>
+            <fieldset id="fs2">
               <div class="jumbotron jumbotron-fluid vertical-center">
                 <h2 class="display-4 landing-title landing-title-center"><span>Connect your MongoDB Repository</span></h2>
                 <label class="form-label" for="hostname">Authentication</label>
@@ -78,7 +78,8 @@
                   <input type="password" class="form-control form-input" id="password" placeholder="Password">
                 </div>
                 <div class="form-navigation">
-                  <input type="button" name="next" class="next btn-default pull-right" value="Next" />
+                  <input type="button" name="next" class="next btn-default btn-default-hover
+                  pull-right" value="Next" />
                   <div class="form-navigation">
                   </div>
                 </div>
@@ -86,7 +87,7 @@
             </fieldset>
 
             <!-- Page 3: Database Name -->
-            <fieldset>
+            <fieldset id="fs3">
               <div class="jumbotron jumbotron-fluid vertical-center">
                 <div class="container">
                   <h2 class="display-4 landing-title landing-title-center connection-successful"><span>Connect your MongoDB Repository</span></h2>
@@ -98,7 +99,7 @@
                   <label id="databaseLabel" class="form-label" for="hostname">Database Name</label>
                   <input type="text" class="form-control form-input" id="database" placeholder="Database Name" value="VisualisingSpatialData">
                   <div class="form-navigation">
-                    <input type="button" name="Test Connection" class="testConnection btn-default pull-right" value="Test Connection" />
+                    <input type="button" name="Test Connection" class="test-connection btn-default btn-default-hover pull-right" value="Test Connection" />
                     <div class="form-navigation">
                     </div>
                   </div>
@@ -113,7 +114,7 @@
                       Connection Successful
                     </div>
                     <div class="modal-footer">
-                      <input type="button" name="Connection Successful" class="next btn-default retrieveCollections" value="OK" />
+                      <input type="button" name="Connection Successful" class="next btn-default btn-default-hover retrieveCollections" value="OK" />
                     </div>
                   </div>
                 </div>
@@ -128,7 +129,7 @@
                     </div>
                     <div id="conn-unsuccessful-content" class=modal-body></div>
                     <div class="modal-footer">
-                      <input type="button" name="Connection Successful" class="btn-default" data-dismiss="modal" value="OK" />
+                      <input type="button" name="Connection Successful" class="btn-default btn-default-hover" data-dismiss="modal" value="OK" />
                     </div>
                   </div>
                 </div>
@@ -136,7 +137,7 @@
             </fieldset>
 
             <!-- Page 4: Collection List -->
-            <fieldset>
+            <fieldset id="fs4">
               <div class="jumbotron jumbotron-fluid vertical-center">
                 <div class="container">
                   <h2 class="display-4 landing-title"><span>Connect your MongoDB Repository</span></h2>
@@ -154,12 +155,20 @@
                     </table>
                   </div>
                   <div class="form-navigation-col">
-                    <input type="button" name="Connect" class="displayMap btn-default pull-right" value="Connect" />
+                    <input type="button" name="Connect" class="displayMap btn-default btn-default-hover pull-right" value="Connect" />
                   </div>
                 </div>
               </div>
             </fieldset>
           </form>
+
+        <!-- progressbar -->
+        <ul id="progressbar">
+            <li class="active">Host</li>
+            <li>Authentication</li>
+            <li>Database</li>
+            <li>Collection</li>
+        </ul>
         </div>
       </div>
     </div>
