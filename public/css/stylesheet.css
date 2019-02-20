@@ -289,7 +289,7 @@ fieldset:not(:first-of-type) {
 }
 
 ul#progressbar {
-    margin-left: -15px;
+  margin-left: -40px;
 }
 
 /*progressbar*/
