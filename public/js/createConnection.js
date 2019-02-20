@@ -65,6 +65,8 @@ function nextTab(current_fs) {
     next_fs = current_fs.next('fieldset');
     next_fs.show();
 
+    $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+
     current_fs.animate({
       opacity: 0
     }, {
@@ -156,7 +158,7 @@ function retrieveCollectionList() {
   const database = $('#database').val();
 
   $.ajax({
-    url: 'http://localhost:3000/api/mongoDB/getCollections',
+    url: 'http://localhost:3000/api/mongoDB/collection',
     type: 'get',
     data: {
       url: encodeURIComponent(url),

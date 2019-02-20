@@ -12,7 +12,6 @@ const latLongLabels = ['latitude', 'longitude', 'lat', 'long'];
 const locLabels = ['loc', 'location', 'Loc', 'Location'];
 
 router.get('/', async (req, res) => {
-  let database = req.query.database;
   let collection = req.query.collection;
 
   const client = await mongoDBConnection.establishConn(req);
