@@ -65,7 +65,7 @@ function nextTab(current_fs) {
     next_fs = current_fs.next('fieldset');
     next_fs.show();
 
-    $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+    $('#progressbar li').eq($('fieldset').index(next_fs)).addClass('active');
 
     current_fs.animate({
       opacity: 0
@@ -169,7 +169,7 @@ function retrieveCollectionList() {
     dataType: 'json',
     success: function(response) {
       $.each(response, function(i, item) {
-        $('#collection-list-items').append('<tr><td class="row-id">' + i + '</td><td class="row-collection-name">' + item.name + '</td></tr>');
+        $('#collection-list-items').append('<tr><td class='row-id'>' + i + '</td><td class='row-collection-name'>' + item.name + '</td></tr>');
       });
     },
     error: function(err) {
@@ -236,5 +236,5 @@ function hideLoading(cssClass, val) {
 
 function displayMap() {
   //TODO Hard coded change
-  window.location.href = "http://localhost:3000/map";
+  window.location.href = 'http://localhost:3000/map';
 }
