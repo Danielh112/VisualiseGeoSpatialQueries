@@ -8,16 +8,9 @@ $(document).ready(function() {
     changeTab($(this));
   });
 
-  $('#createNearQuery').click(function() {
-    //Show tab
-  });
-
-  $('#createIntersectsQuery').click(function() {
-    //Show tab
-  });
-
-  $('#createNearQuery').click(function() {
-    //Show tab
+  $('.createQuery').click(function() {
+    fullPanelExpand($(this));
+    nextTab($(this));
   });
 });
 
@@ -27,6 +20,8 @@ function togglePanel(panel) {
     panel.parents('.panel').find('.panel-body').slideUp();
     panel.addClass('panel-collapsed');
     panel.find('i').removeClass('fa-minus').addClass('fa-plus');
+    fullPanelCollapse(panel);
+    firstTab(panel);
   } else {
     panel.parents('.panel').find('.panel-body').slideDown();
     panel.removeClass('panel-collapsed');
@@ -38,12 +33,61 @@ function togglePanel(panel) {
 /* Change Tab (Tools/Filters) */
 function changeTab(tab) {
   var t = $(tab).attr('id');
-  if(!$(tab).hasClass('active')) {
+  if (!$(tab).hasClass('active')) {
     $('#tabs li').removeClass('active');
     $(tab).addClass('active');
 
-    $('#'+ t + '-container').removeClass('hidden');
+    $('#' + t + '-container').removeClass('hidden');
     $('.side-panel').hide();
-    $('#'+ t + '-container').show();
- }
+    $('#' + t + '-container').show();
+  }
+}
+
+/* 1. Make panel Full Size
+   2. Scroll to panel
+   3. Lock panel in place */
+function fullPanelExpand(element) {
+  const panel = $(element).closest('.panel');
+  panel.addClass('full-panel');
+  const viewPanel = $(element).closest('.view-panel');
+  viewPanel[0].scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+    inline: 'start'
+  });
+  const container = $(element).closest('#tools-tab-container');
+  container.addClass('fixed-panel');
+}
+
+function fullPanelCollapse(element) {
+  const panel = $(element).closest('.panel');
+  if (panel.hasClass('full-panel')) {
+    panel.removeClass('full-panel');
+    const viewPanel = $(element).closest('.view-panel');
+    viewPanel[0].scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+      inline: 'start'
+    });
+    const container = $(element).closest('#tools-tab-container');
+    container.removeClass('fixed-panel');
+  }
+}
+
+/* Hide info content
+   Display new query content */
+function nextTab(element) {
+  const panelBody = $(element).closest('.panel-body');
+  const nextPanelBody = panelBody.next();
+
+  panelBody.addClass('hidden');
+  nextPanelBody.removeClass('hidden');
+
+}
+
+function firstTab(element) {
+  const panelBody = $(element).parents('.panel').find('.panel-body')
+  const firstPanel = panelBody.first();
+  panelBody.addClass('hidden');
+  //firstPanel.parent().parent().find('.panel-body:first').removeClass('hidden');
 }

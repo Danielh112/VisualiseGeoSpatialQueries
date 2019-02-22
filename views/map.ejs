@@ -73,61 +73,67 @@
             <div id="tools-tab-container" class="mapToolBar side-panel">
               <h2 class="display-4 landing-title tool-section-title"><span>Geospatial Tools</span></h2>
               Generate geospatial queries by selecting one of the following tools...
-
-              <div class="panel tool-section">
-                <div class="panel-heading clickable panel-collapsed">
-                  <h3 class="panel-title">
-                    <img src="images/intersects.svg" alt="Intersects Icon" class="icon">
-                    <span class="">Near</span>
-                    <span class="pull-right"><i class="fas fa-plus expand-toggle"></i></span>
-                  </h3>
-                </div>
-                <div class="panel-body">
-                  <div>
-                    Specifies a point for which a geospatial query returns the documents from nearest to farthest.
+              <div class="view-panel">
+                <div id="nearPanel" class="panel tool-section">
+                  <div class="panel-heading clickable panel-collapsed">
+                    <h3 class="panel-title">
+                      <img src="images/intersects.svg" alt="Intersects Icon" class="icon">
+                      <span class="">Near</span>
+                      <span class="pull-right"><i class="fas fa-plus expand-toggle"></i></span>
+                    </h3>
                   </div>
-                  <div class="text-center">
-                    <img src="images/intersects.svg" alt="Within" class="content-image">
+                  <div class="panel-body">
+                    <div>
+                      Specifies a point for which a geospatial query returns the documents from nearest to farthest.
+                    </div>
+                    <div class="text-center">
+                      <img src="images/intersects.svg" alt="Within" class="content-image">
+                    </div>
+                    <input type="button" id="createNearQuery" class="btn-default-inverse btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
                   </div>
-                  <input type="button" name="createIntersectsQuery" class="btn-default-inverse btn-default-inverse-hover pull-right btn-green" value="Create Query" />
-                </div>
-              </div>
-
-              <div class="panel tool-section">
-                <div class="panel-heading clickable panel-collapsed">
-                  <h3 class="panel-title">
-                    <img src="images/intersects.svg" alt="Intersects Icon" class="icon">
-                    <span class="">Intersects</span>
-                    <span class="pull-right"><i class="fas fa-plus expand-toggle"></i></span>
-                  </h3>
-                </div>
-                <div class="panel-body">
-                  <div>
-                    Selects geospatial objects which intersects within a specified GeoJSON object.
+                  <div class="panel-body hidden">
+                    Next Page
                   </div>
-                  <div class="text-center">
-                    <img src="images/intersects.svg" alt="Within" class="content-image">
-                  </div>
-                  <input type="button" name="createIntersectsQuery" class="btn-default-inverse btn-default-inverse-hover pull-right btn-green" value="Create Query" />
                 </div>
               </div>
-
-              <div class="panel tool-section">
-                <div class="panel-heading clickable panel-collapsed">
-                  <h3 class="panel-title">
-                    <img src="images/within.svg" alt="Intersects Icon" class="icon">
-                    <span class="">Within</span>
-                    <span class="pull-right"><i class="fas fa-plus expand-toggle"></i></span>
-                  </h3>
+              <div class="view-panel">
+                <div id="intersectsPanel" class="panel tool-section">
+                  <div class="panel-heading clickable panel-collapsed">
+                    <h3 class="panel-title">
+                      <img src="images/intersects.svg" alt="Intersects Icon" class="icon">
+                      <span class="">Intersects</span>
+                      <span class="pull-right"><i class="fas fa-plus expand-toggle"></i></span>
+                    </h3>
+                  </div>
+                  <div class="panel-body">
+                    <div>
+                      Selects geospatial objects which intersects within a specified GeoJSON object.
+                    </div>
+                    <div class="text-center">
+                      <img src="images/intersects.svg" alt="Within" class="content-image">
+                    </div>
+                    <input type="button" name="createIntersectsQuery" class="btn-default-inverse btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
+                  </div>
                 </div>
-                <div class="panel-body">
-                  <div>
-                    Select geospatial data that exists entirely within a specified shape.
+              </div>
+              <div class="view-panel">
+                <div id="withinPanel" class="panel tool-section">
+                  <div class="panel-heading clickable panel-collapsed">
+                    <h3 class="panel-title">
+                      <img src="images/within.svg" alt="Intersects Icon" class="icon">
+                      <span class="">Within</span>
+                      <span class="pull-right"><i class="fas fa-plus expand-toggle"></i></span>
+                    </h3>
                   </div>
-                  <div class="text-center">
-                    <img src="images/within.svg" alt="Within" class="content-image">
+                  <div class="panel-body">
+                    <div>
+                      Select geospatial data that exists entirely within a specified shape.
+                    </div>
+                    <div class="text-center">
+                      <img src="images/within.svg" alt="Within" class="content-image">
+                    </div>
+                    <input type="button" name="createWithinQuery" class="btn-default-inverse btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
                   </div>
-                  <input type="button" name="createWithinQuery" class="btn-default-inverse btn-default-inverse-hover pull-right btn-green" value="Create Query" />
                 </div>
               </div>
             </div>

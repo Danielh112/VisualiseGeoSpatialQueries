@@ -219,7 +219,7 @@ fieldset:not(:first-of-type) {
   display: none;
 }
 
-#collection-list > thead {
+#collection-list>thead {
   width: 100% !important;
 }
 
@@ -294,57 +294,57 @@ ul#progressbar {
 
 /*progressbar*/
 #progressbar {
-    margin-bottom: 30px;
-    overflow: hidden;
-    /*CSS counters to number the steps*/
-    counter-reset: step;
+  margin-bottom: 30px;
+  overflow: hidden;
+  /*CSS counters to number the steps*/
+  counter-reset: step;
 }
 
 #progressbar li {
-    list-style-type: none;
-    color: rgba(108, 88, 179, 1);
-    text-transform: uppercase;
-    font-size: 9px;
-    width: 25%;
-    float: left;
-    position: relative;
-    letter-spacing: 1px;
-    text-align: center;
+  list-style-type: none;
+  color: rgba(108, 88, 179, 1);
+  text-transform: uppercase;
+  font-size: 9px;
+  width: 25%;
+  float: left;
+  position: relative;
+  letter-spacing: 1px;
+  text-align: center;
 }
 
 #progressbar li:before {
-    content: counter(step);
-    counter-increment: step;
-    width: 24px;
-    height: 24px;
-    line-height: 26px;
-    display: block;
-    font-size: 12px;
-    color: #333;
-    background: white;
-    border-radius: 25px;
-    margin: 0 auto 10px auto;
+  content: counter(step);
+  counter-increment: step;
+  width: 24px;
+  height: 24px;
+  line-height: 26px;
+  display: block;
+  font-size: 12px;
+  color: #333;
+  background: white;
+  border-radius: 25px;
+  margin: 0 auto 10px auto;
 }
 
 /*progressbar connectors*/
 #progressbar li:after {
-    content: '';
-    width: 100%;
-    height: 2px;
-    background: white;
-    position: absolute;
-    left: -50%;
-    top: 9px;
-    z-index: -1;
+  content: '';
+  width: 100%;
+  height: 2px;
+  background: white;
+  position: absolute;
+  left: -50%;
+  top: 9px;
+  z-index: -1;
 }
 
 #progressbar li:first-child:after {
-    content: none;
+  content: none;
 }
 
 #progressbar li.active:before, #progressbar li.active:after {
-    background: rgba(143, 130, 200, 1);
-    color: #F5F5F5;
+  background: rgba(143, 130, 200, 1);
+  color: #F5F5F5;
 }
 
 .btn-default {
@@ -488,6 +488,7 @@ div.tooltip {
 .filters-content {
   height: 90%;
 }
+
 #collectionAttributes {
   margin-bottom: 50px;
 }
@@ -538,7 +539,6 @@ div.tooltip {
   border-width: 0px 0px 0px 0px;
   padding: 0px 10px 0px 10px;
   border-style: solid;
-  margin-top: 14px;
   display: block;
   background: #f5f5f5;
   border-radius: 10px;
@@ -563,11 +563,19 @@ div.tooltip {
   font-size: 12px;
 }
 
+.view-panel>.panel {
+  margin-bottom: 0px !important;
+}
+
+.view-panel {
+  padding-top: 14px;
+}
+
 .filter-section {
   margin-bottom: 9px !important;
 }
 
-.filter-section > .panel-heading {
+.filter-section>.panel-heading {
   padding: 9px 15px !important;
 }
 
@@ -590,4 +598,12 @@ div.tooltip {
 .expand-toggle {
   padding-top: 19px;
   font-size: 15px;
+}
+
+.full-panel {
+  height: 473px;
+}
+
+.fixed-panel {
+  overflow-y: hidden;
 }
