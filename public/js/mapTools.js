@@ -33,11 +33,20 @@ $(document).ready(function() {
     drawMarker($(this));
   });
 
+  $('.next').click(function() {
+    nextTab($(this));
+  });
+
+  $('.prev').click(function() {
+    prevTab($(this));
+  });
+
   map.on('draw:created', function(element) {
       const geometry = element.layer.toGeoJSON();
       const generateQuery = queryBuilder(geometry);
       generateQuery.then(function(query) {
         $('#generatedQuery').val(query);
+        $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
       });
   });
 });
@@ -46,11 +55,11 @@ $(document).ready(function() {
 function togglePanel(panel) {
   if (!panel.hasClass('panel-collapsed')) {
     fullPanelCollapse(panel);
-    panel.parents('.panel').find('.panel-body').slideUp();
+    panel.closest('.panel').find('.panel-body').slideUp(); // TODO :first
     panel.addClass('panel-collapsed');
     panel.find('i').removeClass('fa-minus').addClass('fa-plus');
   } else {
-    panel.parents('.panel').find('.panel-body').slideDown();
+    panel.closest('.panel').find('.panel-body').slideDown();
     panel.removeClass('panel-collapsed');
     panel.find('i').removeClass('fa-plus').addClass('fa-minus');
   }
@@ -103,14 +112,22 @@ function fullPanelCollapse(element) {
   }
 }
 
+/* Return to the previous page maintaining values*/
+function prevTab(element) {
+
+}
+
 /* Hide info content
-   Display new query content */
+   Display new query content
+   Disable the next button in the next panel */
 function nextTab(element) {
   const panelBody = $(element).closest('.panel-body');
   const nextPanelBody = panelBody.next();
 
   panelBody.addClass('hidden');
   nextPanelBody.removeClass('hidden');
+
+  $(`#${toolMode}`).find('.next').addClass('btn-default-disabled');
 
 }
 
