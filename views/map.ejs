@@ -42,20 +42,15 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-md-12 no-padding">
-        <!--Delete -->
-      </div>
-    </div>
-    <div class="row">
       <div class="col-md-12">
         <div class="row">
-          <div class="col-md-8 no-padding">
-            <div class="col-md-4 no-padding float-bottom">
+          <div class="col-md-8 no-padding-or-margin">
+            <div class="col-md-4 no-padding-or-margin float-bottom">
               <div>
                 <b>Collection:</b> <span id="collectionInfo"></span>
               </div>
             </div>
-            <div class="col-md-8 no-padding float-bottom">
+            <div class="col-md-8 no-padding-or-margin float-bottom">
               <div>
                 Displaying <span id="collectionGeospatialSize"></span> geospatial objects of <span id="collectionSize"></span> records.
               </div>
@@ -65,7 +60,7 @@
             <div id="tooltip">
             </div>
           </div>
-          <div class="col-md-4 no-padding">
+          <div class="col-md-4 no-padding-or-margin">
             <ul id="tabs" class="nav nav-tabs">
               <li id="tools-tab" class="tab active"><a href="#">Tools</a></li>
               <li id="filters-tab" class="tab"><a href="#">Filters</a></li>
@@ -74,7 +69,7 @@
               <h2 class="display-4 landing-title tool-section-title"><span>Geospatial Tools</span></h2>
               Generate geospatial queries by selecting one of the following tools...
               <div class="view-panel">
-                <div id="nearPanel" class="panel tool-section">
+                <div id="near" class="panel tool-section">
                   <div class="panel-heading clickable panel-collapsed">
                     <h3 class="panel-title">
                       <img src="images/intersects.svg" alt="Intersects Icon" class="icon">
@@ -89,15 +84,27 @@
                     <div class="text-center">
                       <img src="images/intersects.svg" alt="Within" class="content-image">
                     </div>
-                    <input type="button" id="createNearQuery" class="btn-default-inverse btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
+                    <input type="button" id="createNearQuery" class="btn-default-inverse btn-top-padding btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
                   </div>
                   <div class="panel-body hidden">
-                    Next Page
+                    <div class="text-center">
+                      <label for="drawPoint">Draw Selection Point on Map</label> <br>
+                      <button id="drawPoint" class="btn-default-inverse btn-default-inverse-hover btn-green draw-marker"><i class="fas fa-thumbtack"></i></i></button>
+                    </div>
+                    <h2 class="text-divider"><span>OR</span></h2>
+                    <div class="text-center">
+                      <label for="ExistingPoint">Find existing point from Map</label>
+                      <input type="text" id="ExistingPoint" class="form-control form-input w-100" placeholder="Filter on..." value="">
+                    </div>
+                    <div class="tool-nav-buttons">
+                      <button class="btn-default-inverse btn-default-inverse-hover btn-green btn-default-disabled"><i class="fas fa-chevron-left"></i></button>
+                      <button class="btn-default-inverse btn-default-inverse-hover btn-green pull-right btn-default-disabled"><i class="fas fa-chevron-right"></i></button>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="view-panel">
-                <div id="intersectsPanel" class="panel tool-section">
+                <div id="intersects" class="panel tool-section">
                   <div class="panel-heading clickable panel-collapsed">
                     <h3 class="panel-title">
                       <img src="images/intersects.svg" alt="Intersects Icon" class="icon">
@@ -112,12 +119,12 @@
                     <div class="text-center">
                       <img src="images/intersects.svg" alt="Within" class="content-image">
                     </div>
-                    <input type="button" name="createIntersectsQuery" class="btn-default-inverse btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
+                    <input type="button" name="createIntersectsQuery" class="btn-default-inverse btn-top-padding btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
                   </div>
                 </div>
               </div>
               <div class="view-panel">
-                <div id="withinPanel" class="panel tool-section">
+                <div id="within" class="panel tool-section">
                   <div class="panel-heading clickable panel-collapsed">
                     <h3 class="panel-title">
                       <img src="images/within.svg" alt="Intersects Icon" class="icon">
@@ -132,7 +139,7 @@
                     <div class="text-center">
                       <img src="images/within.svg" alt="Within" class="content-image">
                     </div>
-                    <input type="button" name="createWithinQuery" class="btn-default-inverse btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
+                    <input type="button" name="createWithinQuery" class="btn-default-inverse btn-top-padding btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
                   </div>
                 </div>
               </div>
@@ -152,6 +159,12 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 no-margin query-panel">
+        <label for="generatedQuery" class="query-label">Generated Query:</label>
+        <input type="text" id="generatedQuery" class="form-control form-input query-output" placeholder="Generated Query" value="">
       </div>
     </div>
   </div>
