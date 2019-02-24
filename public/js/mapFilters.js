@@ -36,15 +36,15 @@ function populateAttributes() {
 function displayAttributes(attributes) {
   attributes.forEach(function(attribute) {
     $('#collectionAttributes').append(
-      '<div class="panel tool-section filter-section">' +
-        '<div class="panel-heading clickable panel-collapsed">' +
-          '<h3 class="panel-title">' + attribute +
-            '<span class="pull-right"><i class="fas fa-plus"></i></span>' +
-          '</h3>' +
-        '</div>' +
-        '<div class="panel-body">' +
-          '<input type="text" class="form-control form-input" placeholder="Filter on..." value="">' +
-        '</div>' +
-      '</div>');
+      `<div class="panel tool-section filter-section">
+        <div class="panel-heading clickable panel-collapsed">
+          <h3 class="panel-title"> ${attribute}
+            <span class="pull-right"><i class="fas fa-plus"></i></span>
+          </h3>
+        </div>
+        <div class="panel-body">
+          <input type="text" class="form-control form-input" placeholder="Filter on..." value="">
+        </div>
+      </div>`);
   });
 }

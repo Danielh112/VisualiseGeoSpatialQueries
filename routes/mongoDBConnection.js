@@ -5,14 +5,21 @@ const MongoClient = require('mongodb').MongoClient;
 const config = require('../config/config');
 const map = config.defaultMapConnection;
 
-router.get('/testConnection', async (req, res) => {
+router.get('/testConnection', async (req, res, next) => {
   const client = await establishConn(req);
+  const db = client.db(req.query.database);
 
-  var response = {
-    status: 200,
-    success: 'Connection successfully established'
-  }
-  res.end(JSON.stringify(response));
+  db.listCollections().toArray(function(err, collections) {
+    if (collections.length < 1) {
+      next({message: 'No database exists with that name or no collections exist in the database'});
+    }
+
+    var response = {
+      status: 200,
+      success: 'Connection successfully established'
+    }
+    res.end(JSON.stringify(response));
+  });
 });
 
 router.get('/collection', async (req, res) => {
@@ -75,6 +82,7 @@ function establishConn(req) {
     MongoClient.connect(url, {
       useNewUrlParser: true
     }, function(err, client) {
+
       if (err) {
         reject(err);
       } else {

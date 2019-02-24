@@ -26,6 +26,11 @@ window.onload = function() {
     retrieveCollectionList();
   });
 
+  $(document).on('hide.bs.modal','#conn-successful-modal', function () {
+    nextTab($(this).closest('fieldset'));
+    retrieveCollectionList();
+});
+
   $('.displayMap').click(function() {
     /* Only used in development environment,
     session storage not to be used in production */
@@ -127,6 +132,7 @@ function testConnection() {
         url: encodeURIComponent(url),
         username: username,
         password: password,
+        database: database
       },
       dataType: 'json',
       success: function(response) {
@@ -136,7 +142,7 @@ function testConnection() {
       },
       error: function(err) {
         const errMsg = $.parseJSON(err.responseText);
-        $('#conn-unsuccessful-content').append(errMsg['error']['message']);
+        $('#conn-unsuccessful-content').html(errMsg['error']['message']);
         $('#conn-unsuccessful-modal').modal('toggle');
         connetionTest = false;
         hideLoading('.test-connection', 'Test Connection');
