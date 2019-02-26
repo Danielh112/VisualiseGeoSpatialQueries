@@ -1,8 +1,20 @@
 /* Specifies the tool mode, near, intersects, within */
-let toolMode;
+let tool = {
+  mode: '',
+};
 
 const near = {
-  markerDrawn: false
+  markerDrawn: false,
+  geo: {
+    geometry: '',
+  },
+  distance: {
+    maxDistShape: '',
+    minDistShape: '',
+    minDistance: 0,
+    maxDistance: 0
+  },
+  nearsphere: false
 }
 
 const within = {
@@ -33,12 +45,29 @@ $(document).ready(function() {
     drawMarker($(this));
   });
 
+  $('.next').click(function() {
+    nextTab($(this));
+  });
+
+  $('.prev').click(function() {
+    prevTab($(this));
+  });
+
+  $("#maximumDistInput").on("change paste keyup", function() {
+    maxDistCircle($(this).val());
+  });
+
+  $("#minimumDistInput").on("change paste keyup", function() {
+    minDistCircle($(this).val());
+  });
+
+  $('#nearSphereToggle').mousedown(function() {
+    nearSphereToggle($(this));
+  });
+
+  /* Marker Drawn */
   map.on('draw:created', function(element) {
-      const geometry = element.layer.toGeoJSON();
-      const generateQuery = queryBuilder(geometry);
-      generateQuery.then(function(query) {
-        $('#generatedQuery').val(query);
-      });
+    markerDrawn(element);
   });
 });
 
@@ -46,11 +75,13 @@ $(document).ready(function() {
 function togglePanel(panel) {
   if (!panel.hasClass('panel-collapsed')) {
     fullPanelCollapse(panel);
-    panel.parents('.panel').find('.panel-body').slideUp();
+    panel.closest('.panel').find('.panel-body').slideUp();
     panel.addClass('panel-collapsed');
     panel.find('i').removeClass('fa-minus').addClass('fa-plus');
   } else {
-    panel.parents('.panel').find('.panel-body').slideDown();
+    panelBody = panel.closest('.panel').find('.panel-body')
+    panelBody.slideDown();
+    panelBody.css('display', 'flex');
     panel.removeClass('panel-collapsed');
     panel.find('i').removeClass('fa-plus').addClass('fa-minus');
   }
@@ -86,7 +117,9 @@ function fullPanelExpand(element) {
   container.addClass('fixed-panel');
 }
 
-/* Collapse full panel (return to info panels) */
+/* Collapse full panel (return to info panels)
+   - Remove all layers on map
+*/
 function fullPanelCollapse(element) {
   const panel = $(element).closest('.panel');
   if (panel.hasClass('full-panel')) {
@@ -100,23 +133,53 @@ function fullPanelCollapse(element) {
     const container = $(element).closest('#tools-tab-container');
     container.removeClass('fixed-panel');
     firstTab(element);
+
+    $(`#${tool.mode}`).find('.next').addClass('btn-default-disabled');
+
+    // TODO remove all layers on mapbox
+    // Reset buttons including near tool selected button 
   }
 }
 
-/* Hide info content
-   Display new query content */
+/* If the button is not disabled
+   Hide current content
+   Display next content
+   Disable the next button in the next panel
+*/
+function prevTab(element) {
+  if (!element.hasClass('btn-default-disabled')) {
+    const panelBody = $(element).closest('.panel-body');
+    const prevPanelBody = panelBody.prev();
+
+    panelBody.addClass('hidden');
+    prevPanelBody.removeClass('hidden');
+    prevPanelBody.show();
+  }
+}
+
+/* If the button is not disabled
+   Hide current content
+   Display next content
+   Disable the next button in the next panel
+   Collpase all children
+*/
 function nextTab(element) {
-  const panelBody = $(element).closest('.panel-body');
-  const nextPanelBody = panelBody.next();
+  if (!element.hasClass('btn-default-disabled')) {
+    const panelBody = $(element).closest('.panel-body');
+    const nextPanelBody = panelBody.next();
 
-  panelBody.addClass('hidden');
-  nextPanelBody.removeClass('hidden');
+    panelBody.addClass('hidden');
+    nextPanelBody.removeClass('hidden');
+    nextPanelBody.show();
+    nextPanelBody.find('.panel-body').hide();
 
+    $(`#${tool.mode}`).find('.next').addClass('btn-default-disabled');
+  }
 }
 
 /* Set the current mode we are in e.g. near, intersects, within */
 function setToolMode(element) {
-  toolMode = $(element).closest('.tool-section').attr('id');
+  tool.mode = $(element).closest('.tool-section').attr('id');
 }
 
 
@@ -142,6 +205,81 @@ function drawMarker(button) {
   }
 }
 
+function markerDrawn(marker) {
+  near.geo.geometry = marker.layer.toGeoJSON();
+  const generatedQuery = queryBuilder(near.geo.geometry);
+  queryOutput(generatedQuery);
+
+}
+
+/* Draw near Maxdistance circle
+   Note: mapbox plots lat and long in reverse so lat and long array is reversed
+*/
+function maxDistCircle(distance) {
+  near.distance.maxDistance = distance;
+  if (near.markerDrawn && distance !== '') {
+    markerCoordinates = near.geo.geometry.geometry.coordinates;
+    coordinates = [...markerCoordinates].reverse();
+
+    const maxDistShape = near.distance.maxDistShape;
+
+    if (maxDistShape !== '') {
+      map.removeLayer(maxDistShape);
+    }
+    near.distance.maxDistShape = L.circle(coordinates, parseInt(distance, 10)).addTo(map);
+
+    const generatedQuery = queryBuilder(near.geo.geometry, distance, near.distance.minDistance);
+    queryOutput(generatedQuery);
+  }
+}
+
+/* Draw near Mindistance circle
+   Note: mapbox plots lat and long in reverse so lat and long array is reversed
+*/
+
+function minDistCircle(distance) {
+  near.distance.minDistance = distance;
+
+  if (near.markerDrawn && distance !== '') {
+    markerCoordinates = near.geo.geometry.geometry.coordinates;
+    coordinates = [...markerCoordinates].reverse();
+
+    const minDistShape = near.distance.minDistShape;
+
+    if (minDistShape !== '') {
+      map.removeLayer(minDistShape);
+    }
+
+    near.distance.minDistShape = L.circle(coordinates, {
+      radius: parseInt(distance, 10),
+      color: '#ed8c7b',
+      fillColor: '#ed8c7b',
+      opacity: 1.0
+    }).addTo(map);
+
+    const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance, distance);
+    queryOutput(generatedQuery);
+  }
+}
+
+function nearSphereToggle(toggle) {
+  if (!toggle.is(':checked')) {
+    tool.mode = 'nearSphere';
+  } else {
+    tool.mode = 'near';
+  }
+  const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance,
+    near.distance.minDistance);
+  queryOutput(generatedQuery);
+}
+
+function queryOutput(generateQuery) {
+  generateQuery.then(function(query) {
+    $('#generatedQuery').val(query);
+    $(`#${tool.mode}`).find('.next').removeClass('btn-default-disabled');
+  });
+}
+
 function queryBuilder(geoJson, maxDistance, minDistance) {
 
   let collection = sessionStorage.getItem('collection');
@@ -152,7 +290,7 @@ function queryBuilder(geoJson, maxDistance, minDistance) {
       type: 'get',
       data: {
         collection: collection,
-        queryType: toolMode,
+        queryType: tool.mode,
         geometry: geoJson.geometry,
         maxDistance: maxDistance,
         minDistance: minDistance

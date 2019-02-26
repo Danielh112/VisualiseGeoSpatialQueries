@@ -22,7 +22,7 @@ function nearQuery(req) {
   const collection = req.query.collection;
   const queryType = req.query.queryType;
   const coordinates = req.query.geometry.coordinates;
-  const maxDistance = maxDistanceExpr(req.query.minDistance);
+  const maxDistance = maxDistanceExpr(req.query.maxDistance);
   const minDistance = minDistanceExpr(req.query.minDistance);
 
   return `
@@ -31,7 +31,7 @@ function nearQuery(req) {
        location:
          { $${queryType} :
             {
-              $geometry: { type: "Point",  ${coordinates} }
+              $geometry: { type: "Point", coordinates: [${coordinates}] }
               ${maxDistance}
               ${minDistance}
             }

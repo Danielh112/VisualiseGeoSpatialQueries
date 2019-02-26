@@ -72,7 +72,7 @@
                 <div id="near" class="panel tool-section">
                   <div class="panel-heading clickable panel-collapsed">
                     <h3 class="panel-title">
-                      <img src="images/intersects.svg" alt="Intersects Icon" class="icon">
+                      <img src="images/near.svg" alt="Intersects Icon" class="icon">
                       <span class="">Near</span>
                       <span class="pull-right"><i class="fas fa-plus expand-toggle"></i></span>
                     </h3>
@@ -89,7 +89,7 @@
                   <div class="panel-body hidden">
                     <div class="text-center">
                       <label for="drawPoint">Draw Selection Point on Map</label> <br>
-                      <button id="drawPoint" class="btn-default-inverse btn-default-inverse-hover btn-green draw-marker"><i class="fas fa-thumbtack"></i></i></button>
+                      <button id="drawPoint" class="btn-default-inverse btn-default-inverse-hover btn-green draw-marker"><i class="fas fa-thumbtack"></i></button>
                     </div>
                     <h2 class="text-divider"><span>OR</span></h2>
                     <div class="text-center">
@@ -97,8 +97,37 @@
                       <input type="text" id="ExistingPoint" class="form-control form-input w-100" placeholder="Filter on..." value="">
                     </div>
                     <div class="tool-nav-buttons">
-                      <button class="btn-default-inverse btn-default-inverse-hover btn-green btn-default-disabled"><i class="fas fa-chevron-left"></i></button>
-                      <button class="btn-default-inverse btn-default-inverse-hover btn-green pull-right btn-default-disabled"><i class="fas fa-chevron-right"></i></button>
+                      <button class="btn-default-inverse btn-default-inverse-hover btn-green btn-default-disabled prev"><i class="fas fa-chevron-left"></i></button>
+                      <button class="btn-default-inverse btn-default-inverse-hover btn-green pull-right btn-default-disabled next"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="panel-body hidden">
+                    <div class="text-center">
+                      <label class="float-left" for="maximumDistInput">Set maximum Distance from point (km)</label> <br>
+                      <input type="number" id="maximumDistInput" class="form-control form-input w-100" placeholder="500000" value="">
+                    </div>
+                    <div>
+                      <div class="panel transparent-panel margin-top-md">
+                        <div class="panel-heading clickable panel-collapsed no-padding">
+                          <h3 class="panel-title additonal-options-panel">
+                            <span class="">See More Options</span>
+                            <span class="pull-right"><i class="fas fa-plus"></i></span>
+                          </h3>
+                        </div>
+                        <div class="panel-body no-padding padding-bottom-sm padding-top-sm">
+                          <label for="minimumDistInput">Set minimum distance from point (km)</label>
+                          <input type="number" id="minimumDistInput" class="form-control form-input w-100" placeholder="5" value="">
+                          <ul class="list-unstyled padding-left-x-sm">
+                            <li>
+                              <label class="padding-top-sm" for="nearSphereToggle">Use Nearsphere <a href="https://docs.mongodb.com/manual/reference/operator/query/nearSphere/">(Find out more)</a></label>
+                              <input type="checkbox" id="nearSphereToggle" class="panel-checkbox form-check-input transparent-panel margin-left-sm">
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tool-nav-button">
+                      <button class="btn-default-inverse btn-default-inverse-hover btn-green prev"><i class="fas fa-chevron-left"></i></button>
                     </div>
                   </div>
                 </div>

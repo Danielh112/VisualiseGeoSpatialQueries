@@ -601,9 +601,12 @@ div.tooltip {
   margin-right: -10px;
 }
 
-.tool-section>.panel-body {
+.tool-section .panel-body {
   display: none;
   font-size: 12px;
+  height: inherit;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .view-panel>.panel {
@@ -612,6 +615,17 @@ div.tooltip {
 
 .view-panel {
   padding-top: 14px;
+}
+
+.transparent-panel {
+  background-color: rgba(0,0,0,0);
+  border: 0px;
+  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0) !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,0) !important;
+}
+
+.additonal-options-panel {
+  font-size: 14px;
 }
 
 .filter-section {
@@ -645,6 +659,8 @@ div.tooltip {
 
 .full-panel {
   height: 473px;
+  display: flex;
+  flex-direction: column;
 }
 
 .fixed-panel {
@@ -652,7 +668,31 @@ div.tooltip {
 }
 
 .tool-nav-buttons {
-  padding-top: 100px;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: row;
+  align-self: center;
+}
+
+.tool-nav-buttons>button {
+  margin-top: auto;
+  margin-left: 55px;
+  margin-right: 55px;
+}
+
+.tool-nav-button {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: row;
+  align-self: flex-start;
+}
+
+.tool-nav-button>button {
+margin-top: auto;
+}
+
+input[type=checkbox].panel-checkbox  {
+  transform: scale(1.5);
 }
 
 /* Generated Query Output */
@@ -663,11 +703,67 @@ div.tooltip {
   padding-top: 20px;
 }
 
-.query-label {
-
-
-}
+.query-label {}
 
 #queryOutput {
-flex: 1;
+  flex: 1;
+}
+
+
+/* Default styles */
+
+.padding-sm {
+  padding: 10px !important;
+}
+
+.padding-top-sm {
+  padding-top: 10px !important;
+}
+
+.padding-bottom-sm {
+  padding-top: 10px !important;
+}
+
+.padding-left-x-sm {
+  padding-left: 4px !important;
+}
+
+.padding-md {
+  padding: 15px !important;
+}
+
+.padding-left-md {
+  padding-left: 15px !important;
+}
+
+.padding-right-md {
+  padding-right: 15px !important;
+}
+
+.margin-left-sm {
+  margin-left: 10px !important;
+}
+
+.margin-right-sm {
+  margin-right: 10px !important;
+}
+
+.margin-top-sm {
+  margin-top: 10px !important;
+}
+
+.margin-bottom-sm {
+  margin-bottom: 10px !important;
+}
+
+.margin-top-md {
+  margin-top: 35px !important;
+}
+
+.margin-bottom-md {
+  margin-bottom: 35px !important;
+}
+
+.float-left {
+  float: left;
 }
