@@ -5,6 +5,7 @@ let tool = {
 
 const near = {
   markerDrawn: false,
+  marker: '',
   geo: {
     geometry: '',
   },
@@ -39,6 +40,7 @@ $(document).ready(function() {
     fullPanelExpand($(this));
     nextTab($(this));
     setToolMode($(this));
+    restorePanel();
   });
 
   $('.draw-marker').click(function() {
@@ -119,6 +121,7 @@ function fullPanelExpand(element) {
 
 /* Collapse full panel (return to info panels)
    - Remove all layers on map
+   - Look for any sub collapsable elements and collapse these elements
 */
 function fullPanelCollapse(element) {
   const panel = $(element).closest('.panel');
@@ -136,8 +139,44 @@ function fullPanelCollapse(element) {
 
     $(`#${tool.mode}`).find('.next').addClass('btn-default-disabled');
 
-    // TODO remove all layers on mapbox
-    // Reset buttons including near tool selected button 
+    resetPanel();
+  }
+}
+
+/* Reset map (remove all drawn shapes),
+   Reset all near variables
+   Reset marker drawn button and nearsphere toggle
+*/
+
+function resetPanel() {
+  if (tool.mode === 'near' || tool.mode === 'nearSphere') {
+    if (near.marker !== '') {
+      map.removeLayer(near.marker);
+    }
+    if (near.distance.maxDistShape !== '') {
+      map.removeLayer(near.distance.maxDistShape);
+    }
+    if (near.distance.minDistShape !== '') {
+      map.removeLayer(near.distance.minDistShape);
+    }
+  }
+}
+
+function restorePanel() {
+  if (tool.mode === 'near' || tool.mode === 'nearSphere') {
+    if (near.marker !== '') {
+      map.addLayer(near.marker);
+    }
+    if (near.distance.maxDistShape !== '') {
+      map.addLayer(near.distance.maxDistShape);
+    }
+    if (near.distance.minDistShape !== '') {
+      map.addLayer(near.distance.minDistShape);
+    }
+    if(near.marker !== '') {
+      const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance, near.distance.minDistance);
+      queryOutput(generatedQuery);
+    }
   }
 }
 
@@ -206,6 +245,7 @@ function drawMarker(button) {
 }
 
 function markerDrawn(marker) {
+  near.marker = marker.layer;
   near.geo.geometry = marker.layer.toGeoJSON();
   const generatedQuery = queryBuilder(near.geo.geometry);
   queryOutput(generatedQuery);
