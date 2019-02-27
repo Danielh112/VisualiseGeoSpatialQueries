@@ -709,6 +709,36 @@ input[type=checkbox].panel-checkbox  {
   flex: 1;
 }
 
+/* Intersect panel */
+.intersect-icons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-top: 50px;
+  margin: -10px;
+}
+
+.intersect-icon {
+  flex: 1;
+  padding: 10px;
+  margin: 5px;
+  color: rgba(245, 245, 245, 1);
+  border: 2px solid rgb(69, 154, 59);
+  border-radius: 8px;
+  background: #4ba840;
+}
+
+.intersect-icon:hover {
+color: #FFF;
+background: rgba(108, 88, 179, 0.75);
+border: 2px solid rgba(108, 89, 179, 0.75);
+}
+
+.btn-default-selected {
+  color: #FFF !important;
+  background: rgba(108, 88, 179, 0.75) !important;
+  border: 2px solid rgba(108, 89, 179, 0.75) !important;
+}
 
 /* Default styles */
 

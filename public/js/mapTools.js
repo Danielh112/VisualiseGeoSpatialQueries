@@ -23,7 +23,7 @@ const within = {
 }
 
 const intersects = {
-  polygonDrawn: false
+  polygonTool: ''
 }
 
 $(document).ready(function() {
@@ -70,6 +70,11 @@ $(document).ready(function() {
   /* Marker Drawn */
   map.on('draw:created', function(element) {
     markerDrawn(element);
+  });
+
+  /* Intersection Panel */
+  $('.intersect-icon').mousedown(function() {
+    polygonToolSelection($(this));
   });
 });
 
@@ -173,7 +178,7 @@ function restorePanel() {
     if (near.distance.minDistShape !== '') {
       map.addLayer(near.distance.minDistShape);
     }
-    if(near.marker !== '') {
+    if (near.marker !== '') {
       const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance, near.distance.minDistance);
       queryOutput(generatedQuery);
     }
@@ -311,6 +316,24 @@ function nearSphereToggle(toggle) {
   const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance,
     near.distance.minDistance);
   queryOutput(generatedQuery);
+}
+
+function polygonToolSelection(tool) {
+
+  currentToolId = intersects.polygonTool.attr('id') || '';
+  toolId = tool.attr('id');
+
+  if (currentToolId === '') {
+    tool.addClass('btn-default-selected');
+    intersects.polygonTool = tool;
+  } else if (currentToolId === toolId) {
+    tool.removeClass('btn-default-selected');
+    intersects.polygonTool = '';
+  } else {
+    intersects.polygonTool.removeClass('btn-default-selected');
+    tool.addClass('btn-default-selected');
+    intersects.polygonTool = tool;
+  }
 }
 
 function queryOutput(generateQuery) {
