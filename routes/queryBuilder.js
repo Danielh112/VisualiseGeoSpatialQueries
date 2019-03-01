@@ -10,6 +10,10 @@ router.get('/', async (req, res, next) => {
     query = nearQuery(req, next);
   }
 
+  if (queryType === 'geoIntersects') {
+    query = intersectsQuery(req, next);
+  }
+
   var response = {
     status: 200,
     query: query
@@ -57,5 +61,33 @@ function minDistanceExpr(distance) {
 }
 
 
+function intersectsQuery(req) {
+
+  const collection = req.query.collection;
+  const queryType = req.query.queryType;
+  const coordinates = coordinateExpr(req.query.geometry.coordinates);
+  const maxDistance = maxDistanceExpr(req.query.maxDistance);
+  const minDistance = minDistanceExpr(req.query.minDistance);
+
+  console.log(coordinates);
+
+  return `
+  db.${collection}.find(
+    {
+       location:
+         { $${queryType} :
+            {
+              $geometry: { type: "Polygon", coordinates: ${coordinates} }
+            }
+         }
+     }
+   )`;
+}
+
+/* Reverse array and stringify coordinates */
+function coordinateExpr(coordinates) {
+  reversedCoordinates = [...coordinates].reverse();
+  return JSON.stringify(reversedCoordinates).replace(/['"]+/g, '');
+}
 
 module.exports = router;

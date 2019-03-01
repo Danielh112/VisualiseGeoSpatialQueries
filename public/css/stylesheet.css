@@ -210,6 +210,12 @@ fieldset:not(:first-of-type) {
   margin-top: 8px;
 }
 
+ul.ui-autocomplete.ui-menu {
+  width: 310px !important;
+  margin-left: 10px;
+  margin-top: 9px;
+}
+
 .form-hr {
   margin-top: 16px;
   border: 1px solid #f5f5f5;
@@ -502,10 +508,6 @@ div.tooltip {
   margin: 0 !important;
 }
 
-.w-100 {
-  width: 100%;
-}
-
 /* Map Tools */
 .selection {
   fill: #ADD8E6;
@@ -618,10 +620,10 @@ div.tooltip {
 }
 
 .transparent-panel {
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   border: 0px;
-  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0) !important;
-  box-shadow: 0 1px 1px rgba(0,0,0,0) !important;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0) !important;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0) !important;
 }
 
 .additonal-options-panel {
@@ -688,10 +690,10 @@ div.tooltip {
 }
 
 .tool-nav-button>button {
-margin-top: auto;
+  margin-top: auto;
 }
 
-input[type=checkbox].panel-checkbox  {
+input[type=checkbox].panel-checkbox {
   transform: scale(1.5);
 }
 
@@ -714,7 +716,7 @@ input[type=checkbox].panel-checkbox  {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding-top: 50px;
+  padding-top: 17px;
   margin: -10px;
 }
 
@@ -729,9 +731,9 @@ input[type=checkbox].panel-checkbox  {
 }
 
 .intersect-icon:hover {
-color: #FFF;
-background: rgba(108, 88, 179, 0.75);
-border: 2px solid rgba(108, 89, 179, 0.75);
+  color: #FFF;
+  background: rgba(108, 88, 179, 0.75);
+  border: 2px solid rgba(108, 89, 179, 0.75);
 }
 
 .btn-default-selected {
@@ -740,8 +742,34 @@ border: 2px solid rgba(108, 89, 179, 0.75);
   border: 2px solid rgba(108, 89, 179, 0.75) !important;
 }
 
-/* Default styles */
+.inner-addon {
+  position: relative;
+}
 
+.inner-addon .fas {
+  position: absolute;
+  pointer-events: none;
+  top: 0px;
+  padding: 11px;
+}
+
+.left-addon .fas {
+  left: 0px;
+}
+
+.right-addon .fas {
+  right: 0px;
+}
+
+.left-addon input {
+  padding-left: 30px;
+}
+
+.right-addon input {
+  padding-right: 30px;
+}
+
+/* Default styles */
 .padding-sm {
   padding: 10px !important;
 }
@@ -796,4 +824,12 @@ border: 2px solid rgba(108, 89, 179, 0.75);
 
 .float-left {
   float: left;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.w-80 {
+  width: 80%;
 }

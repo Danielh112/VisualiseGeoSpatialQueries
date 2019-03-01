@@ -1,11 +1,12 @@
 /* Specifies the tool mode, near, intersects, within */
-let tool = {
-  mode: '',
-};
+let toolMode = '';
+let currentDrawTool = '';
 
 const near = {
+  tool: '',
   markerDrawn: false,
   marker: '',
+  nextShape: '',
   geo: {
     geometry: '',
   },
@@ -18,15 +19,24 @@ const near = {
   nearsphere: false
 }
 
-const within = {
+const geoIntersects = {
+  tool: '',
+  polygonDrawn: false,
+  shape: '',
+  nextShape: '',
+  polygonTool: '',
+  selectedTool: '',
+  geo: {
+    geometry: ''
+  }
+}
+
+const geoWithin = {
   polygonDrawn: false
 }
 
-const intersects = {
-  polygonTool: ''
-}
-
 $(document).ready(function() {
+  /* Panel, tabs and pages */
   $(document).on('click', '.panel-heading', function() {
     togglePanel($(this));
   })
@@ -37,14 +47,10 @@ $(document).ready(function() {
   });
 
   $('.createQuery').click(function() {
+    setToolMode($(this));
     fullPanelExpand($(this));
     nextTab($(this));
-    setToolMode($(this));
-    restorePanel();
-  });
-
-  $('.draw-marker').click(function() {
-    drawMarker($(this));
+    restoreMapDrawings();
   });
 
   $('.next').click(function() {
@@ -55,11 +61,42 @@ $(document).ready(function() {
     prevTab($(this));
   });
 
-  $("#maximumDistInput").on("change paste keyup", function() {
+  /* Near Panel: Changes and inputs */
+
+  /* Step 1: Draw Marker or find Existing point */
+
+  $('.draw-marker').click(function() {
+    drawMarker($(this));
+  });
+
+  /* Autcomplete input */
+  $(".find-documents").autocomplete({
+    source: function(request, response) {
+      $.when(
+        findDocuments($(this)[0].term)
+      ).then(function(suggestions) {
+        response(suggestions);
+      })
+    },
+    minLength: 2,
+    focus: function(event, ui) {
+      ui.item.value = ui.item.label;
+    },
+    select: function(event, ui) {
+      ui.item.value = ui.item.label;
+      if (toolMode === 'near') {
+        autoDrawMarker(ui.item);
+      } else {
+        autoDrawPolygon(ui.item);
+      }
+    }
+  });
+
+  $("#maximumDistInput").on("paste keyup", function() {
     maxDistCircle($(this).val());
   });
 
-  $("#minimumDistInput").on("change paste keyup", function() {
+  $("#minimumDistInput").on("paste keyup", function() {
     minDistCircle($(this).val());
   });
 
@@ -67,14 +104,33 @@ $(document).ready(function() {
     nearSphereToggle($(this));
   });
 
-  /* Marker Drawn */
-  map.on('draw:created', function(element) {
-    markerDrawn(element);
-  });
-
   /* Intersection Panel */
   $('.intersect-icon').mousedown(function() {
-    polygonToolSelection($(this));
+    if (!polygonExists('manual')) {
+      polygonToolSelection($(this));
+    } else {
+      $('#redraw-polygon-modal').modal('toggle');
+      geoIntersects.selectedTool = $(this);
+    }
+  });
+
+  $('.proceed').click(function() {
+    closeModal();
+    clearMapDrawings();
+    if (toolMode === 'near') {
+      redrawMarker();
+    } else {
+      polygonToolSelection(geoIntersects.selectedTool);
+    }
+  });
+
+  $('.cancel').click(function() {
+    closeModal();
+  });
+
+  /* On map drawn event */
+  map.on('draw:created', function(element) {
+    shapeDrawn(element);
   });
 });
 
@@ -94,7 +150,6 @@ function togglePanel(panel) {
   }
 }
 
-
 /* Change Tab (Tools/Filters) */
 function changeTab(tab) {
   var t = $(tab).attr('id');
@@ -105,6 +160,42 @@ function changeTab(tab) {
     $('#' + t + '-container').removeClass('hidden');
     $('.side-panel').hide();
     $('#' + t + '-container').show();
+  }
+}
+
+/* If the button is not disabled
+   Hide current content
+   Display next content
+   Disable the next button in the next panel
+*/
+function prevTab(element) {
+  if (!element.hasClass('btn-default-disabled')) {
+    const panelBody = $(element).closest('.panel-body');
+    const prevPanelBody = panelBody.prev();
+
+    panelBody.addClass('hidden');
+    prevPanelBody.removeClass('hidden');
+    prevPanelBody.show();
+  }
+}
+
+/* If the button is not disabled
+   Hide current content
+   Display next content
+   Disable the next button in the next panel
+   Collpase all children
+*/
+function nextTab(element) {
+  if (!element.hasClass('btn-default-disabled')) {
+    const panelBody = $(element).closest('.panel-body');
+    const nextPanelBody = panelBody.next();
+
+    panelBody.addClass('hidden');
+    nextPanelBody.removeClass('hidden');
+    nextPanelBody.show();
+    nextPanelBody.find('.panel-body').hide();
+
+    $(`#${toolMode}`).find('.next').addClass('btn-default-disabled');
   }
 }
 
@@ -142,88 +233,52 @@ function fullPanelCollapse(element) {
     container.removeClass('fixed-panel');
     firstTab(element);
 
-    $(`#${tool.mode}`).find('.next').addClass('btn-default-disabled');
+    $(`#${toolMode}`).find('.next').addClass('btn-default-disabled');
 
-    resetPanel();
+    clearMapDrawings();
   }
 }
 
-/* Reset map (remove all drawn shapes),
+/* Closure of tab restore map (remove all drawn shapes),
    Reset all near variables
    Reset marker drawn button and nearsphere toggle
 */
 
-function resetPanel() {
-  if (tool.mode === 'near' || tool.mode === 'nearSphere') {
-    if (near.marker !== '') {
-      map.removeLayer(near.marker);
-    }
-    if (near.distance.maxDistShape !== '') {
-      map.removeLayer(near.distance.maxDistShape);
-    }
-    if (near.distance.minDistShape !== '') {
-      map.removeLayer(near.distance.minDistShape);
-    }
+function clearMapDrawings() {
+  if (toolMode === 'near' || toolMode === 'nearSphere') {
+    if (near.marker !== '') map.removeLayer(near.marker);
+    if (near.distance.maxDistShape !== '') map.removeLayer(near.distance.maxDistShape);
+    if (near.distance.minDistShape !== '') map.removeLayer(near.distance.minDistShape);
+  } else if (toolMode === 'geoIntersects') {
+    geoIntersects.polygonDrawn = false;
+    if (geoIntersects.shape !== '') map.removeLayer(geoIntersects.shape);
   }
 }
 
-function restorePanel() {
-  if (tool.mode === 'near' || tool.mode === 'nearSphere') {
+/* If tab is reopened restore map */
+
+function restoreMapDrawings() {
+  if (toolMode === 'near' || toolMode === 'nearSphere') {
     if (near.marker !== '') {
       map.addLayer(near.marker);
-    }
-    if (near.distance.maxDistShape !== '') {
-      map.addLayer(near.distance.maxDistShape);
-    }
-    if (near.distance.minDistShape !== '') {
-      map.addLayer(near.distance.minDistShape);
-    }
-    if (near.marker !== '') {
       const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance, near.distance.minDistance);
       queryOutput(generatedQuery);
     }
+
+    if (near.distance.maxDistShape !== '') map.addLayer(near.distance.maxDistShape);
+    if (near.distance.minDistShape !== '') map.addLayer(near.distance.minDistShape);
+  } else if (toolMode === 'geoIntersects') {
+    if (geoIntersects.shape !== '') map.addLayer(geoIntersects.shape);
   }
 }
 
-/* If the button is not disabled
-   Hide current content
-   Display next content
-   Disable the next button in the next panel
-*/
-function prevTab(element) {
-  if (!element.hasClass('btn-default-disabled')) {
-    const panelBody = $(element).closest('.panel-body');
-    const prevPanelBody = panelBody.prev();
-
-    panelBody.addClass('hidden');
-    prevPanelBody.removeClass('hidden');
-    prevPanelBody.show();
-  }
-}
-
-/* If the button is not disabled
-   Hide current content
-   Display next content
-   Disable the next button in the next panel
-   Collpase all children
-*/
-function nextTab(element) {
-  if (!element.hasClass('btn-default-disabled')) {
-    const panelBody = $(element).closest('.panel-body');
-    const nextPanelBody = panelBody.next();
-
-    panelBody.addClass('hidden');
-    nextPanelBody.removeClass('hidden');
-    nextPanelBody.show();
-    nextPanelBody.find('.panel-body').hide();
-
-    $(`#${tool.mode}`).find('.next').addClass('btn-default-disabled');
-  }
+function closeModal() {
+  $('.modal').modal('hide');
 }
 
 /* Set the current mode we are in e.g. near, intersects, within */
 function setToolMode(element) {
-  tool.mode = $(element).closest('.tool-section').attr('id');
+  toolMode = $(element).closest('.tool-section').attr('id');
 }
 
 
@@ -241,20 +296,95 @@ function firstTab(element) {
   2. Set button colour to in use
   3. Use drawPoint tool
   */
-function drawMarker(button) {
-  if (!near.markerDrawn) {
-    button.addClass('btn-default-clicked');
-    new L.Draw.Marker(map, drawControl.options.marker).enable();
-    near.markerDrawn = true;
+
+function markerExists(mode) {
+  near.tool = mode;
+
+  if (near.markerDrawn) {
+    $('#redraw-marker-modal').modal('toggle');
+    return true;
+  } else {
+    return false;
   }
 }
 
+function drawMarker(button) {
+  if (!markerExists('manual')) {
+    button.addClass('btn-default-clicked');
+    new L.Draw.Marker(map, drawControl.options.marker).enable();
+  }
+}
+
+function autoDrawMarker(shape) {
+  if (!markerExists('auto')) {
+    geometry = [...shape.location.coordinates].reverse();
+    shape = L.marker(geometry).addTo(map);
+    near.markerDrawn = true;
+    near.marker = shape;
+    near.geo.geometry = shape.toGeoJSON();
+  } else {
+    near.nextShape = shape;
+  }
+}
+
+function shapeDrawn(shape) {
+  if (toolMode === 'near' || toolMode === 'nearSphere') {
+    markerDrawn(shape);
+  } else if (toolMode === 'geoIntersects') {
+    polygonDrawn(shape);
+  }
+
+  const generatedQuery = queryBuilder(shape.layer.toGeoJSON());
+  queryOutput(generatedQuery);
+}
+
 function markerDrawn(marker) {
+  near.markerDrawn = true;
   near.marker = marker.layer;
   near.geo.geometry = marker.layer.toGeoJSON();
-  const generatedQuery = queryBuilder(near.geo.geometry);
-  queryOutput(generatedQuery);
+}
 
+function polygonDrawn(polygon) {
+  geoIntersects.polygonDrawn = true;
+  geoIntersects.shape = polygon.layer;
+  geoIntersects.geo.geometry = polygon.layer.toGeoJSON();
+}
+
+function autoDrawPolygon(shape) {
+  if (!polygonExists('auto')) {
+    geometry = [...shape.location.coordinates].reverse();
+    shape = L.marker(geometry).addTo(map);
+
+    geoIntersects.polygonDrawn = true;
+    geoIntersects.shape = shape;
+    geoIntersects.geo.geometry = shape.toGeoJSON();
+  } else {
+    geoIntersects.nextShape = shape;
+  }
+}
+
+function redrawMarker() {
+  near.markerDrawn = false;
+  if (near.tool === 'manual') {
+    drawMarker($('.draw-marker'));
+  } else {
+    autoDrawMarker(near.nextShape);
+  }
+}
+
+function redrawPolygon() {
+
+}
+
+function polygonExists(mode) {
+
+  geoIntersects.tool = mode;
+  if (geoIntersects.polygonDrawn) {
+    $('#redraw-marker-modal').modal('toggle');
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /* Draw near Maxdistance circle
@@ -271,7 +401,7 @@ function maxDistCircle(distance) {
     if (maxDistShape !== '') {
       map.removeLayer(maxDistShape);
     }
-    near.distance.maxDistShape = L.circle(coordinates, parseInt(distance, 10)).addTo(map);
+    near.distance.maxDistShape = L.circle(coordinates, parseInt(distance * 1000, 10)).addTo(map);
 
     const generatedQuery = queryBuilder(near.geo.geometry, distance, near.distance.minDistance);
     queryOutput(generatedQuery);
@@ -296,7 +426,7 @@ function minDistCircle(distance) {
     }
 
     near.distance.minDistShape = L.circle(coordinates, {
-      radius: parseInt(distance, 10),
+      radius: parseInt(distance * 1000, 10),
       color: '#ed8c7b',
       fillColor: '#ed8c7b',
       opacity: 1.0
@@ -309,37 +439,115 @@ function minDistCircle(distance) {
 
 function nearSphereToggle(toggle) {
   if (!toggle.is(':checked')) {
-    tool.mode = 'nearSphere';
+    toolMode = 'nearSphere';
   } else {
-    tool.mode = 'near';
+    toolMode = 'near';
   }
   const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance,
     near.distance.minDistance);
   queryOutput(generatedQuery);
 }
 
+/* If a polygon has already been drawn validate if the user wants to redraw that shape */
+/*
+function polygonExists() {
+  if (toolMode === 'geoIntersects' && geoIntersects.polygonDrawn === true) {
+    return true;
+  } else if (toolMode === 'geoWithin' && geoWithin.polygonDrawn === true) {
+    return true;
+  }
+  return false;
+}
+*/
+
+
 function polygonToolSelection(tool) {
 
-  currentToolId = intersects.polygonTool.attr('id') || '';
-  toolId = tool.attr('id');
+  if (geoIntersects.tool === 'auto') {
+    autoDrawPolygon(geoIntersects.nextShape);
 
-  if (currentToolId === '') {
-    tool.addClass('btn-default-selected');
-    intersects.polygonTool = tool;
-  } else if (currentToolId === toolId) {
-    tool.removeClass('btn-default-selected');
-    intersects.polygonTool = '';
-  } else {
-    intersects.polygonTool.removeClass('btn-default-selected');
-    tool.addClass('btn-default-selected');
-    intersects.polygonTool = tool;
+  } else if (geoIntersects.tool === 'manual') {
+    toolId = tool[0].id;
+    currentToolId = '';
+
+    if (geoIntersects.polygonTool !== '') {
+      currentToolId = geoIntersects.polygonTool[0].id;
+    }
+
+    if (currentToolId === '') {
+      tool.addClass('btn-default-selected');
+      geoIntersects.polygonTool = tool;
+      drawPolygon(tool[0].id);
+    } else if (currentToolId === toolId) {
+      geoIntersects.polygonTool = tool;
+      drawPolygon(tool[0].id);;
+    } else {
+      geoIntersects.polygonTool.removeClass('btn-default-selected');
+      tool.addClass('btn-default-selected');
+      geoIntersects.polygonTool = tool;
+      drawPolygon(tool[0].id);
+    }
   }
+}
+
+/* Limit the amount of shapes that can be drawn to 1 and set tool */
+function drawPolygon(shape) {
+
+  if (currentDrawTool !== '') {
+    currentDrawTool.disable();
+  }
+
+  if (shape === 'drawTool') currentDrawTool = new L.Draw.Polygon(map, drawControl.options.Polyline);
+  if (shape === 'circleTool') currentDrawTool = new L.Draw.Circle(map, drawControl.options.Circle);
+  if (shape === 'rectangleTool') currentDrawTool = new L.Draw.Rectangle(map, drawControl.options.Rectangle);
+
+  currentDrawTool.enable();
 }
 
 function queryOutput(generateQuery) {
   generateQuery.then(function(query) {
     $('#generatedQuery').val(query);
-    $(`#${tool.mode}`).find('.next').removeClass('btn-default-disabled');
+    $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
+  });
+}
+
+async function findDocuments(searchParam) {
+  let url = sessionStorage.getItem('url');
+  let username = sessionStorage.getItem('username');
+  let password = sessionStorage.getItem('password');
+  let database = sessionStorage.getItem('database');
+  let collection = sessionStorage.getItem('collection');
+
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: 'http://localhost:3000/api/mongoDB/findDocuments',
+      type: 'get',
+      data: {
+        url: encodeURIComponent(url),
+        username: username,
+        password: password,
+        database: database,
+        collection: collection,
+        searchParam: searchParam,
+        limit: 3
+      },
+      success: function(response) {
+        //Needs to be an array structure
+        var suggestions = [];
+        $.each(response, function(idx, document) {
+          document.label = document.name;
+          document.value = document._id;
+          suggestions.push(document);
+        });
+
+        resolve(suggestions);
+      },
+      error: function(err) {
+        //TODO display error in UI
+        console.log(err);
+        reject(err);
+      }
+    });
   });
 }
 
@@ -353,7 +561,7 @@ function queryBuilder(geoJson, maxDistance, minDistance) {
       type: 'get',
       data: {
         collection: collection,
-        queryType: tool.mode,
+        queryType: toolMode,
         geometry: geoJson.geometry,
         maxDistance: maxDistance,
         minDistance: minDistance
