@@ -64,6 +64,22 @@ router.get('/collection/attributes', async (req, res) => {
   });
 });
 
+router.get('/findDocuments', async (req, res) => {
+  const client = await establishConn(req);
+  const db = client.db(req.query.database);
+  const collection = req.query.collection;
+
+  const searchParam = req.query.searchParam;
+  const limit = parseInt(req.query.limit);
+
+  db.collection(collection).find({"name": {"$regex": `${searchParam}`, "$options": "i"}}).limit(limit).toArray(function(err, result) {
+    if (err) throw err;
+    res.status(200).send(
+      result
+    );
+  });
+});
+
 function establishConn(req) {
 
   let url = req.query.url;

@@ -6,7 +6,6 @@ const GeoJSON = require('geojson');
 const mongoDBConnection = require('./mongoDBConnection.js');
 const config = require('../config/config');
 const _ = require('underscore');
-const map = config.defaultMapConnection;
 
 const latLongLabels = ['latitude', 'longitude', 'lat', 'long'];
 const locLabels = ['loc', 'location', 'Loc', 'Location'];
@@ -16,7 +15,7 @@ router.get('/', async (req, res) => {
 
   const client = await mongoDBConnection.establishConn(req);
   const db = client.db(req.query.database);
-  db.collection(collection).find({}).limit(1000).toArray(function(err, result) {
+  db.collection(collection).find({}).limit(config.mapLimit).toArray(function(err, result) {
     if (err) throw err;
     res.status(200).send(
       parseJson(result)

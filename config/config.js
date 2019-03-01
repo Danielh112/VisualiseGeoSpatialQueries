@@ -5,5 +5,6 @@ config.defaultMapConnection = {
   db: 'services',
   collection: 'geodb'
 }
+config.mapLimit = 1000;
 
 module.exports = config;

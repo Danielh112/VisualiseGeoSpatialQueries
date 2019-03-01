@@ -5,12 +5,15 @@
 <head>
   <meta charset="utf-8">
 
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <!-- jquery -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script> <!-- Change to min file -->
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <!-- D3 -->
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <!-- /public/js/.. -->
@@ -82,7 +85,7 @@
                       Specifies a point for which a geospatial query returns the documents from nearest to farthest.
                     </div>
                     <div class="text-center">
-                      <img src="images/intersects.svg" alt="Within" class="content-image">
+                      <img src="images/near.svg" alt="Within" class="content-image">
                     </div>
                     <input type="button" id="createNearQuery" class="btn-default-inverse btn-top-padding btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
                   </div>
@@ -93,8 +96,11 @@
                     </div>
                     <h2 class="text-divider"><span>OR</span></h2>
                     <div class="text-center">
-                      <label for="ExistingPoint">Find existing point from Map</label>
-                      <input type="text" id="ExistingPoint" class="form-control form-input w-100" placeholder="Filter on..." value="">
+                      <label for="near-find-documents">Find existing point in your collection</label>
+                      <div class="ui-widget inner-addon right-addon">
+                        <input id="near-find-documents" class="find-documents form-control form-input w-100" placeholder="Post office..">
+                        <i class="fas fa-search"></i>
+                      </div>
                     </div>
                     <div class="tool-nav-buttons">
                       <button class="btn-default-inverse btn-default-inverse-hover btn-green btn-default-disabled prev"><i class="fas fa-chevron-left"></i></button>
@@ -104,7 +110,7 @@
                   <div class="panel-body hidden">
                     <div class="text-center">
                       <label class="float-left" for="maximumDistInput">Set maximum Distance from point (km)</label> <br>
-                      <input type="number" id="maximumDistInput" class="form-control form-input w-100" placeholder="500000" value="">
+                      <input type="number" id="maximumDistInput" class="form-control form-input w-100" placeholder="500" value="">
                     </div>
                     <div>
                       <div class="panel transparent-panel margin-top-md">
@@ -130,10 +136,23 @@
                       <button class="btn-default-inverse btn-default-inverse-hover btn-green prev"><i class="fas fa-chevron-left"></i></button>
                     </div>
                   </div>
+                  <div class="modal fade conn-modal" id="redraw-marker-modal">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="conn-modal-title">
+                          Select new Marker?
+                        </div>
+                        <div class="modal-footer">
+                          <input type="button" name="Connection Successful" class="cancel btn-default btn-default-hover" value="cancel" />
+                          <input type="button" name="Connection Successful" class="proceed btn-default btn-default-hover" value="Start Again" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="view-panel">
-                <div id="intersects" class="panel tool-section">
+                <div id="geoIntersects" class="panel tool-section">
                   <div class="panel-heading clickable panel-collapsed">
                     <h3 class="panel-title">
                       <img src="images/intersects.svg" alt="Intersects Icon" class="icon">
@@ -149,6 +168,47 @@
                       <img src="images/intersects.svg" alt="Within" class="content-image">
                     </div>
                     <input type="button" name="createIntersectsQuery" class="btn-default-inverse btn-top-padding btn-default-inverse-hover pull-right btn-green createQuery" value="Create Query" />
+                  </div>
+                  <div class="panel-body hidden">
+                    <div class="text-center">
+                      Draw bounding box <br>
+                      <div class="intersect-icons">
+                        <div id="drawTool" class="intersect-icon clickable">
+                          <i class="fas fa-pencil-alt fa-3x"></i>
+                        </div>
+                        <div id="circleTool" class="intersect-icon clickable">
+                          <i class="far fa-circle fa-3x"></i>
+                        </div>
+                        <div id="rectangleTool" class="intersect-icon clickable">
+                          <i class="far fa-square fa-3x"></i>
+                        </div>
+                      </div>
+                      <h2 class="text-divider"><span>OR</span></h2>
+                      <div class="text-center">
+                        <label for="find-Existing-polygon">Find existing polygon from Map</label>
+                        <div class="ui-widget inner-addon right-addon">
+                          <input id="find-Existing-polygon" class="find-documents form-control form-input w-100" placeholder="Cardiff..">
+                          <i class="fas fa-search"></i>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tool-nav-buttons">
+                      <button class="btn-default-inverse btn-default-inverse-hover btn-green btn-default-disabled prev"><i class="fas fa-chevron-left"></i></button>
+                      <button class="btn-default-inverse btn-default-inverse-hover btn-green pull-right btn-default-disabled next"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                  </div>
+                  <div class="modal fade conn-modal" id="redraw-polygon-modal">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="conn-modal-title">
+                          Redraw Bounding box?
+                        </div>
+                        <div class="modal-footer">
+                          <input type="button" name="Connection Successful" class="cancel btn-default btn-default-hover" value="cancel" />
+                          <input type="button" name="Connection Successful" class="proceed btn-default btn-default-hover" value="Start Again" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
