@@ -1,6 +1,27 @@
+const filtersList = {};
+
 $(document).ready(function() {
   populateAttributes();
+
+  $(document).on('click', '#apply-filters', function() {
+    applyFilters();
+  });
 });
+
+/* - Get inputted filters by user
+   - Store filters
+   - Redraw map based on filters
+*/
+async function applyFilters() {
+  $('.filter-input').each(function() {
+    if ($(this).val()) {
+      filtersList[$(this).attr('id')] = $(this).val();
+    }
+  });
+  // TODO Display Modal with what filters are going to be applied
+  sessionStorage.setItem('filterCollection', JSON.stringify(filtersList));
+  redrawMap();
+}
 
 function populateAttributes() {
   let url = sessionStorage.getItem('url');
@@ -35,16 +56,18 @@ function populateAttributes() {
 
 function displayAttributes(attributes) {
   attributes.forEach(function(attribute) {
-    $('#collectionAttributes').append(
-      `<div class="panel tool-section filter-section">
-        <div class="panel-heading clickable panel-collapsed">
-          <h3 class="panel-title"> ${attribute}
-            <span class="pull-right"><i class="fas fa-plus"></i></span>
-          </h3>
-        </div>
-        <div class="panel-body">
-          <input type="text" class="form-control form-input" placeholder="Filter on..." value="">
-        </div>
-      </div>`);
+    $('#collection-list-items').append(
+      `<tr>
+        <td class="row-collection-name no-padding">
+          <div class="panel filter-section transparent-panel no-margin">
+            <div class="panel-heading clickable panel-collapsed">
+              <div class="panel-title"> ${attribute}
+                <span class="pull-right"><i class="fas fa-plus"></i></span>
+              </div>
+            </div>
+            <div class="panel-body">
+              <input type="text" id="${attribute}" class="form-control form-input filter-input" placeholder="Filter on..." value="">
+            </div>
+          </td></tr>`);
   });
 }

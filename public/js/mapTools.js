@@ -32,14 +32,22 @@ const geoIntersects = {
 }
 
 const geoWithin = {
-  polygonDrawn: false
+  tool: '',
+  polygonDrawn: false,
+  shape: '',
+  nextShape: '',
+  polygonTool: '',
+  selectedTool: '',
+  geo: {
+    geometry: ''
+  }
 }
 
 $(document).ready(function() {
-  /* Panel, tabs and pages */
+  /* ---------------- Panel, tabs and navigation ----------------*/
   $(document).on('click', '.panel-heading', function() {
     togglePanel($(this));
-  })
+  });
 
   $('#tabs li').click(function(event) {
     event.preventDefault();
@@ -61,7 +69,21 @@ $(document).ready(function() {
     prevTab($(this));
   });
 
-  /* Near Panel: Changes and inputs */
+  $('.proceed').click(function() {
+    closeModal();
+    clearMapDrawings();
+    if (toolMode === 'near') {
+      redrawMarker();
+    } else {
+      polygonToolSelection(geoIntersects.selectedTool);
+    }
+  });
+
+  $('.cancel').click(function() {
+    closeModal();
+  });
+
+  /* ---------------- Near Panel: Changes and inputs ----------------*/
 
   /* Step 1: Draw Marker or find Existing point */
 
@@ -69,7 +91,6 @@ $(document).ready(function() {
     drawMarker($(this));
   });
 
-  /* Autcomplete input */
   $(".find-documents").autocomplete({
     source: function(request, response) {
       $.when(
@@ -92,6 +113,8 @@ $(document).ready(function() {
     }
   });
 
+  /* Step 2: Draw surrounding max and min distance circles */
+
   $("#maximumDistInput").on("paste keyup", function() {
     maxDistCircle($(this).val());
   });
@@ -104,7 +127,9 @@ $(document).ready(function() {
     nearSphereToggle($(this));
   });
 
-  /* Intersection Panel */
+
+  /* ---------------- Intersection Panel: Changes and inputs ----------------*/
+  /* Step 1: Draw polgon or find Existing shape */
   $('.intersect-icon').mousedown(function() {
     if (!polygonExists('manual')) {
       polygonToolSelection($(this));
@@ -112,20 +137,6 @@ $(document).ready(function() {
       $('#redraw-polygon-modal').modal('toggle');
       geoIntersects.selectedTool = $(this);
     }
-  });
-
-  $('.proceed').click(function() {
-    closeModal();
-    clearMapDrawings();
-    if (toolMode === 'near') {
-      redrawMarker();
-    } else {
-      polygonToolSelection(geoIntersects.selectedTool);
-    }
-  });
-
-  $('.cancel').click(function() {
-    closeModal();
   });
 
   /* On map drawn event */
@@ -250,8 +261,9 @@ function clearMapDrawings() {
     if (near.distance.maxDistShape !== '') map.removeLayer(near.distance.maxDistShape);
     if (near.distance.minDistShape !== '') map.removeLayer(near.distance.minDistShape);
   } else if (toolMode === 'geoIntersects') {
-    geoIntersects.polygonDrawn = false;
     if (geoIntersects.shape !== '') map.removeLayer(geoIntersects.shape);
+  } else if (toolMode === 'geoWithin') {
+    if (geoWithin.shape !== '') map.removeLayer(geoWithin.shape);
   }
 }
 
@@ -268,7 +280,17 @@ function restoreMapDrawings() {
     if (near.distance.maxDistShape !== '') map.addLayer(near.distance.maxDistShape);
     if (near.distance.minDistShape !== '') map.addLayer(near.distance.minDistShape);
   } else if (toolMode === 'geoIntersects') {
-    if (geoIntersects.shape !== '') map.addLayer(geoIntersects.shape);
+    if (geoIntersects.shape !== '') {
+      map.addLayer(geoIntersects.shape);
+      const generatedQuery = queryBuilder(geoIntersects.geo.geometry);
+      queryOutput(generatedQuery);
+    }
+  } else if (toolMode === 'geoWithin') {
+    if (geoWithin.shape !== '') {
+      map.addLayer(geoWithin.shape);
+      const generatedQuery = queryBuilder(geoWithin.geo.geometry);
+      queryOutput(generatedQuery);
+    }
   }
 }
 
@@ -330,7 +352,7 @@ function autoDrawMarker(shape) {
 function shapeDrawn(shape) {
   if (toolMode === 'near' || toolMode === 'nearSphere') {
     markerDrawn(shape);
-  } else if (toolMode === 'geoIntersects') {
+  } else {
     polygonDrawn(shape);
   }
 
@@ -345,9 +367,15 @@ function markerDrawn(marker) {
 }
 
 function polygonDrawn(polygon) {
-  geoIntersects.polygonDrawn = true;
-  geoIntersects.shape = polygon.layer;
-  geoIntersects.geo.geometry = polygon.layer.toGeoJSON();
+  if (toolMode === 'geoIntersects') {
+    geoIntersects.polygonDrawn = true;
+    geoIntersects.shape = polygon.layer;
+    geoIntersects.geo.geometry = polygon.layer.toGeoJSON();
+  } else if (toolMode === 'geoWithin') {
+    geoWithin.polygonDrawn = true;
+    geoWithin.shape = polygon.layer;
+    geoWithin.geo.geometry = polygon.layer.toGeoJSON();
+  }
 }
 
 function autoDrawPolygon(shape) {
@@ -355,16 +383,31 @@ function autoDrawPolygon(shape) {
     geometry = [...shape.location.coordinates].reverse();
     shape = L.marker(geometry).addTo(map);
 
-    geoIntersects.polygonDrawn = true;
-    geoIntersects.shape = shape;
-    geoIntersects.geo.geometry = shape.toGeoJSON();
+    if (toolMode === 'geoIntersects') {
+      geoIntersects.polygonDrawn = true;
+      geoIntersects.shape = shape;
+      geoIntersects.geo.geometry = shape.toGeoJSON();
+    } else if (toolMode === 'geoWithin') {
+      geoWithin.polygonDrawn = true;
+      geoWithin.shape = shape;
+      geoWithin.geo.geometry = shape.toGeoJSON();
+    }
   } else {
-    geoIntersects.nextShape = shape;
+    if (toolMode === 'geoIntersects') {
+      geoIntersects.nextShape = shape;
+    } else if (toolMode === 'geoWithin') {
+      geoWithin.nextShape = shape;
+    }
   }
 }
 
 function redrawMarker() {
   near.markerDrawn = false;
+  near.distance.maxDistance = '';
+  near.distance.minDistance = '';
+  near.distance.maxDistShape = '';
+  near.distance.minDistShape = '';
+
   if (near.tool === 'manual') {
     drawMarker($('.draw-marker'));
   } else {
@@ -378,12 +421,22 @@ function redrawPolygon() {
 
 function polygonExists(mode) {
 
-  geoIntersects.tool = mode;
-  if (geoIntersects.polygonDrawn) {
-    $('#redraw-marker-modal').modal('toggle');
-    return true;
-  } else {
-    return false;
+  if (toolMode === 'geoIntersects') {
+    geoIntersects.tool = mode;
+    if (geoIntersects.polygonDrawn) {
+      $('#redraw-polygon-modal').show('toggle');
+      return true;
+    } else {
+      return false;
+    }
+  } else if (toolMode === 'geoWithin') {
+    geoWithin.tool = mode;
+    if (geoWithin.polygonDrawn) {
+      $('#redraw-polygon-modal').show('toggle');
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
@@ -462,31 +515,41 @@ function polygonExists() {
 
 
 function polygonToolSelection(tool) {
-
-  if (geoIntersects.tool === 'auto') {
-    autoDrawPolygon(geoIntersects.nextShape);
-
-  } else if (geoIntersects.tool === 'manual') {
-    toolId = tool[0].id;
-    currentToolId = '';
-
-    if (geoIntersects.polygonTool !== '') {
-      currentToolId = geoIntersects.polygonTool[0].id;
+  if (toolMode === 'geoIntersects') {
+    if (geoIntersects.tool === 'auto') {
+      autoDrawPolygon(geoIntersects.nextShape);
+    } else if (geoIntersects.tool === 'manual') {
+      manualToolSelection(tool);
     }
-
-    if (currentToolId === '') {
-      tool.addClass('btn-default-selected');
-      geoIntersects.polygonTool = tool;
-      drawPolygon(tool[0].id);
-    } else if (currentToolId === toolId) {
-      geoIntersects.polygonTool = tool;
-      drawPolygon(tool[0].id);;
-    } else {
-      geoIntersects.polygonTool.removeClass('btn-default-selected');
-      tool.addClass('btn-default-selected');
-      geoIntersects.polygonTool = tool;
-      drawPolygon(tool[0].id);
+  } else if (toolMode === 'geoWithin') {
+    if (geoWithin.tool === 'auto') {
+      autoDrawPolygon(geoWithin.nextShape);
+    } else if (geoWithin.tool === 'manual') {
+      manualToolSelection(tool);
     }
+  }
+}
+
+function manualToolSelection(tool) {
+  toolId = tool[0].id;
+  currentToolId = '';
+
+  if (geoIntersects.polygonTool !== '') {
+    currentToolId = geoIntersects.polygonTool[0].id;
+  }
+
+  if (currentToolId === '') {
+    tool.addClass('btn-default-selected');
+    geoIntersects.polygonTool = tool;
+    drawPolygon(tool[0].id);
+  } else if (currentToolId === toolId) {
+    geoIntersects.polygonTool = tool;
+    drawPolygon(tool[0].id);;
+  } else {
+    geoIntersects.polygonTool.removeClass('btn-default-selected');
+    tool.addClass('btn-default-selected');
+    geoIntersects.polygonTool = tool;
+    drawPolygon(tool[0].id);
   }
 }
 
@@ -511,7 +574,7 @@ function queryOutput(generateQuery) {
   });
 }
 
-async function findDocuments(searchParam) {
+function findDocuments(searchParam) {
   let url = sessionStorage.getItem('url');
   let username = sessionStorage.getItem('username');
   let password = sessionStorage.getItem('password');
@@ -529,6 +592,7 @@ async function findDocuments(searchParam) {
         database: database,
         collection: collection,
         searchParam: searchParam,
+        toolMode: toolMode,
         limit: 3
       },
       success: function(response) {

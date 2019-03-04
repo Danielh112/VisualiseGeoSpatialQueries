@@ -1,6 +1,7 @@
 let map;
 let drawnItems;
 let drawControl;
+let mapLoading = true;
 
 const geojsonMarkers = {
   radius: 8,
@@ -17,13 +18,48 @@ $(function() {
 });
 
 async function initialise() {
-  map = createMap();
+  if (connectionExists()) {
+    map = createMap();
+    mapData = await retrieveData();
+    if (mapData.features !== undefined) {
+      createToolTip();
+      geoJSONLayer = appendGeoJson(map, mapData);
+      centerMap(map, geoJSONLayer);
+      initialiseMapTools();
+      mapDetails(mapData);
+    }
+    showContent();
+  }
+}
+
+async function redrawMap() {
+  contentLoading();
   mapData = await retrieveData();
-  createToolTip();
-  geoJSONLayer = appendGeoJson(map, mapData);
-  centerMap(map, geoJSONLayer);
-  initialiseMapTools();
-  mapDetails(mapData);
+  if (mapData.features !== undefined) {
+    geoJSONLayer = appendGeoJson(map, mapData);
+    centerMap(map, geoJSONLayer);
+    mapDetails(mapData);
+  }
+  showContent();
+}
+
+function connectionExists() {
+  if (sessionStorage.getItem('url') === null) {
+    window.location.href = '../';
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function contentLoading() {
+  mapLoading = true;
+  $('#contentLoading').removeClass('hidden');
+}
+
+function showContent() {
+  mapLoading = false;
+  $('#contentLoading').addClass('hidden');
 }
 
 /*
@@ -57,6 +93,7 @@ function retrieveData() {
   let password = sessionStorage.getItem('password');
   let database = sessionStorage.getItem('database');
   let collection = sessionStorage.getItem('collection');
+  let filterCollection = sessionStorage.getItem('filterCollection');
 
   return new Promise((resolve, reject) => {
     $.ajax({
@@ -67,7 +104,8 @@ function retrieveData() {
         username: username,
         password: password,
         database: database,
-        collection: collection
+        collection: collection,
+        filterCollection: filterCollection
       },
       dataType: 'json',
       success: function(response) {
@@ -114,13 +152,15 @@ function mapDetails(mapDetails) {
 
   let totalGeospatialObjects = 0;
   $.each(mapDetails.features, function(i, item) {
-      if( Object.entries(item.geometry).length > 0) {
-        totalGeospatialObjects++;
-      }
+    if (Object.entries(item.geometry).length > 0) {
+      totalGeospatialObjects++;
+    }
   });
 
-  $('#collectionGeospatialSize').append(totalGeospatialObjects);
-  $('#collectionSize').append(mapDetails.features.length);
+  if (mapDetails.features.length > 0) {
+    $('#collectionGeospatialSize').append(totalGeospatialObjects);
+    $('#collectionSize').append(mapDetails.features.length);
+  }
 }
 
 /* On node mouse over
@@ -172,6 +212,6 @@ $(function() {
     const type = e.layerType,
       layer = e.layer;
 
-  drawnItems.addLayer(layer);
+    drawnItems.addLayer(layer);
   });
 });

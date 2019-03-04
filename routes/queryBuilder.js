@@ -10,8 +10,8 @@ router.get('/', async (req, res, next) => {
     query = nearQuery(req, next);
   }
 
-  if (queryType === 'geoIntersects') {
-    query = intersectsQuery(req, next);
+  if (queryType === 'geoIntersects' || queryType === 'geoWithin') {
+    query = spatialQuery(req, next);
   }
 
   var response = {
@@ -61,13 +61,11 @@ function minDistanceExpr(distance) {
 }
 
 
-function intersectsQuery(req) {
+function spatialQuery(req) {
 
   const collection = req.query.collection;
   const queryType = req.query.queryType;
   const coordinates = coordinateExpr(req.query.geometry.coordinates);
-  const maxDistance = maxDistanceExpr(req.query.maxDistance);
-  const minDistance = minDistanceExpr(req.query.minDistance);
 
   console.log(coordinates);
 

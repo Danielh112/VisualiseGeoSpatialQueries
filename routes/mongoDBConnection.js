@@ -40,20 +40,20 @@ router.get('/collection/attributes', async (req, res) => {
   const db = client.db(req.query.database);
 
   var result = db.collection(collection).aggregate([{
-      "$project": {
-        "arrayofkeyvalue": {
-          "$objectToArray": "$$ROOT"
+      '$project': {
+        'arrayofkeyvalue': {
+          '$objectToArray': '$$ROOT'
         }
       }
     },
     {
-      "$unwind": "$arrayofkeyvalue"
+      '$unwind': '$arrayofkeyvalue'
     },
     {
-      "$group": {
-        "_id": null,
-        "allkeys": {
-          "$addToSet": "$arrayofkeyvalue.k"
+      '$group': {
+        '_id': null,
+        'allkeys': {
+          '$addToSet': '$arrayofkeyvalue.k'
         }
       }
     }
@@ -70,15 +70,47 @@ router.get('/findDocuments', async (req, res) => {
   const collection = req.query.collection;
 
   const searchParam = req.query.searchParam;
+  const shapeType = locType(req.query.toolMode);
   const limit = parseInt(req.query.limit);
 
-  db.collection(collection).find({"name": {"$regex": `${searchParam}`, "$options": "i"}}).limit(limit).toArray(function(err, result) {
+  db.collection(collection).find(
+    {
+      'name': {'$regex': `${searchParam}`, '$options': 'i'},
+      'location.type': `${shapeType}`
+    }).limit(limit).toArray(function(err, result) {
     if (err) throw err;
     res.status(200).send(
       result
     );
   });
 });
+
+router.get('/runQuery', async (req, res) => {
+  const client = await establishConn(req);
+  const db = client.db(req.query.database);
+  const collection = req.query.collection;
+
+  const query = req.query.query;
+  const limit = parseInt(req.query.limit);
+
+  db.collection(collection).find(
+    {
+      query
+    }).limit(limit).toArray(function(err, result) {
+    if (err) throw err;
+    res.status(200).send(
+      result
+    );
+  });
+});
+
+function locType(toolMode) {
+  if (toolMode === 'near') {
+    return 'Point';
+  } else {
+    return 'Polygon';
+  }
+}
 
 function establishConn(req) {
 

@@ -294,6 +294,28 @@ ul.ui-autocomplete.ui-menu {
   max-height: 300px;
 }
 
+#collection-attributes td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#collection-attributes.table-striped>tbody>tr:nth-child(odd)>td,
+.table-striped>tbody>tr:nth-child(odd)>th {
+  background-color: #F5F5F5;
+}
+
+#collection-attributes.table-striped>tbody>tr:nth-child(even)>td,
+.table-striped>tbody>tr:nth-child(even)>th {
+  background-color: #FFFFFF;
+}
+
+#collection-attributes>thead, tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
 ul#progressbar {
   margin-left: -40px;
 }
@@ -462,6 +484,15 @@ ul#progressbar {
 }
 
 /*Map*/
+.loading {
+  background: rgba(0, 0, 0, 0.6) url('../images/loading.gif');
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+}
+
 #map-container {
   text-align: center;
   margin: 0 auto;
@@ -611,6 +642,18 @@ div.tooltip {
   flex-grow: 1;
 }
 
+.filter-section>.panel-heading {
+  font-size: 14px !important;
+}
+
+.filter-section .panel-body {
+  display: none;
+  font-size: 12px;
+  height: inherit;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 .view-panel>.panel {
   margin-bottom: 0px !important;
 }
@@ -628,14 +671,6 @@ div.tooltip {
 
 .additonal-options-panel {
   font-size: 14px;
-}
-
-.filter-section {
-  margin-bottom: 9px !important;
-}
-
-.filter-section>.panel-heading {
-  padding: 9px 15px !important;
 }
 
 .clickable {

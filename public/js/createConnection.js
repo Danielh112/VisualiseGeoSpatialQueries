@@ -8,7 +8,7 @@ let animating = false;
 /* Connection test in progress */
 let connetionTest = false;
 
-window.onload = function() {
+$(document).ready(function() {
 
   $('.next').click(function() {
     nextTab($(this).closest('fieldset'));
@@ -51,7 +51,7 @@ window.onload = function() {
     const collectionnames = row.find('td:nth-child(2)');
     toggleCollectionSelection(row, collectionnames);
   });
-}
+});
 
 /*
 Navigate to the next fieldset
