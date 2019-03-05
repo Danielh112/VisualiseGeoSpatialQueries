@@ -28,7 +28,6 @@
   <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 
-
   <title>Visualise Spatial Queries</title>
 
 </head>
@@ -50,13 +49,11 @@
           <div class="row">
             <div class="col-md-8 no-padding-or-margin">
               <div class="col-md-4 no-padding-or-margin float-bottom">
-                <div>
-                  <b>Collection:</b> <span id="collectionInfo"></span>
+                <div id="collectionInfo">
                 </div>
               </div>
               <div class="col-md-8 no-padding-or-margin float-bottom">
-                <div>
-                  Displaying <span id="collectionGeospatialSize"></span> geospatial objects of <span id="collectionSize"></span> records.
+                <div id="collectionGeospatialSize">
                 </div>
               </div>
               <div id="map-container">
@@ -67,7 +64,7 @@
             <div class="col-md-4 no-padding-or-margin">
               <ul id="tabs" class="nav nav-tabs">
                 <li id="tools-tab" class="tab active"><a href="#">Tools</a></li>
-                <li id="filters-tab" class="tab"><a href="#">Filters</a></li>
+                <li id="filters-tab" class="tab"><a href="#">Filters <span id="filters-indicator">0</span></a></li>
               </ul>
               <div id="tools-tab-container" class="mapToolBar side-panel">
                 <h2 class="display-4 landing-title tool-section-title"><span>Geospatial Tools</span></h2>
@@ -285,7 +282,7 @@
                   <table id="collection-attributes" class="table table-striped table-hover">
                     <thead>
                       <tr>
-                        <th scope="col" class="row-collection-name">Name</th>
+                        <th scope="col" class="row-collection-name"></th>
                       </tr>
                     </thead>
                     <tbody id="collection-list-items">
@@ -296,13 +293,28 @@
                   <input type="button" id="apply-filters" name="applyFilters" class="btn-default btn-default-hover pull-right btn-green" value="Apply Filters" />
                 </div>
               </div>
+              <div class="modal fade conn-modal" id="filter-applied">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="conn-modal-title">
+                      Filters to the map have been applied
+                    </div>
+                    <div class="modal-footer">
+                      <input type="button" class="btn-default btn-default-hover" value="OK" />
+                    </div>
+                  </div>
+                </div>
+              </div>
           </div>
         </div>
       </div>
       <div class="row">
         <div class="col-md-12 no-margin query-panel">
-          <label for="generatedQuery" class="query-label">Generated Query:</label>
-          <input type="text" id="generatedQuery" class="form-control form-input query-output" placeholder="Generated Query" value="">
+          <ul id="query-tabs" class="nav nav-tabs">
+            <li id="" class="tab active"><a href="#">Generated Query:</a></li>
+            <li id="" class="tab"><a href="#">Query Output</a></li>
+          </ul>
+          <textarea rows = "5" cols = "60" id="generatedQuery" class="form-control query-output" placeholder="db.collection.find(...)"></textarea>
         </div>
       </div>
     </div>

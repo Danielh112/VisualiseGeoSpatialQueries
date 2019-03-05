@@ -344,6 +344,11 @@ function autoDrawMarker(shape) {
     near.markerDrawn = true;
     near.marker = shape;
     near.geo.geometry = shape.toGeoJSON();
+
+    var latLngs = [ shape.getLatLng() ];
+    var markerBounds = L.latLngBounds(latLngs);
+    map.fitBounds(markerBounds);
+
   } else {
     near.nextShape = shape;
   }
@@ -569,7 +574,7 @@ function drawPolygon(shape) {
 
 function queryOutput(generateQuery) {
   generateQuery.then(function(query) {
-    $('#generatedQuery').val(query);
+    $('#generatedQuery').val(query.trim());
     $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
   });
 }

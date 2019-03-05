@@ -11,7 +11,9 @@ router.get('/testConnection', async (req, res, next) => {
 
   db.listCollections().toArray(function(err, collections) {
     if (collections.length < 1) {
-      next({message: 'No database exists with that name or no collections exist in the database'});
+      next({
+        message: 'No database exists with that name or no collections exist in the database'
+      });
     }
 
     var response = {
@@ -73,12 +75,17 @@ router.get('/findDocuments', async (req, res) => {
   const shapeType = locType(req.query.toolMode);
   const limit = parseInt(req.query.limit);
 
-  db.collection(collection).find(
-    {
-      'name': {'$regex': `${searchParam}`, '$options': 'i'},
-      'location.type': `${shapeType}`
-    }).limit(limit).toArray(function(err, result) {
+  db.collection(collection).find({
+    'name': {
+      '$regex': `${searchParam}`,
+      '$options': 'i'
+    },
+    'location.type': `${shapeType}`
+  }).limit(limit).toArray(function(err, result) {
     if (err) throw err;
+    if (result.length === 0) {
+      result.push(`No results matched your search criteria`);
+    }
     res.status(200).send(
       result
     );
@@ -93,10 +100,9 @@ router.get('/runQuery', async (req, res) => {
   const query = req.query.query;
   const limit = parseInt(req.query.limit);
 
-  db.collection(collection).find(
-    {
-      query
-    }).limit(limit).toArray(function(err, result) {
+  db.collection(collection).find({
+    query
+  }).limit(limit).toArray(function(err, result) {
     if (err) throw err;
     res.status(200).send(
       result

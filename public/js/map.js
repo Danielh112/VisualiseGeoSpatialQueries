@@ -15,18 +15,19 @@ const geojsonMarkers = {
 
 $(function() {
   initialise();
+
 });
 
 async function initialise() {
   if (connectionExists()) {
     map = createMap();
     mapData = await retrieveData();
+    initialiseMapTools();
+    mapDetails(mapData);
+    createToolTip();
     if (mapData.features !== undefined) {
-      createToolTip();
       geoJSONLayer = appendGeoJson(map, mapData);
       centerMap(map, geoJSONLayer);
-      initialiseMapTools();
-      mapDetails(mapData);
     }
     showContent();
   }
@@ -34,11 +35,12 @@ async function initialise() {
 
 async function redrawMap() {
   contentLoading();
+  clearMapData();
   mapData = await retrieveData();
+  geoJSONLayer = appendGeoJson(map, mapData);
+  mapDetails(mapData);
   if (mapData.features !== undefined) {
-    geoJSONLayer = appendGeoJson(map, mapData);
     centerMap(map, geoJSONLayer);
-    mapDetails(mapData);
   }
   showContent();
 }
@@ -60,6 +62,12 @@ function contentLoading() {
 function showContent() {
   mapLoading = false;
   $('#contentLoading').addClass('hidden');
+}
+
+function clearMapData() {
+  if (geoJSONLayer !== null) {
+    map.removeLayer(geoJSONLayer);
+  }
 }
 
 /*
@@ -148,18 +156,19 @@ function createToolTip() {
   collection name, total geospatial objects and total geospatial objects */
 function mapDetails(mapDetails) {
   let collection = sessionStorage.getItem('collection');
-  $('#collectionInfo').append(collection);
-
   let totalGeospatialObjects = 0;
+
   $.each(mapDetails.features, function(i, item) {
     if (Object.entries(item.geometry).length > 0) {
       totalGeospatialObjects++;
     }
   });
 
-  if (mapDetails.features.length > 0) {
-    $('#collectionGeospatialSize').append(totalGeospatialObjects);
-    $('#collectionSize').append(mapDetails.features.length);
+  $('#collectionInfo').text(`Collection: ${collection}`);
+  if (mapDetails.features) {
+    $('#collectionGeospatialSize').text(`Displaying ${totalGeospatialObjects} Geospatial Objects of ${mapDetails.features.length}.`);
+  } else {
+    $('#collectionGeospatialSize').text(`Displaying 0 Geospatial Objects.`);
   }
 }
 

@@ -32,7 +32,7 @@ function filterBuilder(filters) {
   }
 
   Object.entries(JSON.parse(filters)).map(([key, value]) => {
-    filterList[key] = value ;
+    filterList[key] = {'$regex': value, '$options': 'i'};
   })
   return filterList;
 }
