@@ -294,6 +294,28 @@ ul.ui-autocomplete.ui-menu {
   max-height: 300px;
 }
 
+#collection-attributes td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#collection-attributes.table-striped>tbody>tr:nth-child(odd)>td,
+.table-striped>tbody>tr:nth-child(odd)>th {
+  background-color: #F5F5F5;
+}
+
+#collection-attributes.table-striped>tbody>tr:nth-child(even)>td,
+.table-striped>tbody>tr:nth-child(even)>th {
+  background-color: #FFFFFF;
+}
+
+#collection-attributes>thead, tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
 ul#progressbar {
   margin-left: -40px;
 }
@@ -462,14 +484,25 @@ ul#progressbar {
 }
 
 /*Map*/
+.loading {
+  background: rgba(0, 0, 0, 0.6) url('../images/loading.gif');
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+}
+
 #map-container {
   text-align: center;
   margin: 0 auto;
   width: -webkit-fill-available;
   height: 500px;
+  border-right: 4px solid #F5F5F5;
   -webkit-box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.28);
   -moz-box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.28);
   box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.28);
+  z-index: 1;
 }
 
 @media (min-width: 992px) {
@@ -525,7 +558,6 @@ div.tooltip {
   -webkit-box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.28);
   -moz-box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.28);
   box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.28);
-  border-left: 4px solid #F5F5F5;
   padding: 15px;
   overflow-y: auto;
 }
@@ -548,16 +580,16 @@ div.tooltip {
   margin-right: 31px;
 }
 
-.mapToolBar::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background-color: #F5F5F5;
 }
 
-.mapToolBar::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 12px;
   background-color: #F5F5F5;
 }
 
-.mapToolBar::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
   background-color: #555;
@@ -570,6 +602,39 @@ div.tooltip {
 #tabs>li>a {
   padding-top: 3px;
   padding-bottom: 3px;
+}
+
+#query-tabs {
+  margin: 3px 0px 0px 4px;
+}
+
+#query-tabs>li>a {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+.tab {
+  z-index: 2
+}
+
+#filters-indicator {
+  display: none;
+  position: absolute;
+  margin: -34px 0px 0px 41px;
+  padding-top: 2px;
+  width: 25px;
+  height: 25px;
+  background: #f96060;
+  opacity: 0.9;
+  color: #ebf5ea;
+  text-align: center;
+  -moz-border-radius: 70px;
+  -webkit-border-radius: 70px;
+  border-radius: 70px;
+  -webkit-box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.1);
+  z-index: 1;
 }
 
 .tool-section-title {
@@ -611,6 +676,18 @@ div.tooltip {
   flex-grow: 1;
 }
 
+.filter-section>.panel-heading {
+  font-size: 14px !important;
+}
+
+.filter-section .panel-body {
+  display: none;
+  font-size: 12px;
+  height: inherit;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 .view-panel>.panel {
   margin-bottom: 0px !important;
 }
@@ -628,14 +705,6 @@ div.tooltip {
 
 .additonal-options-panel {
   font-size: 14px;
-}
-
-.filter-section {
-  margin-bottom: 9px !important;
-}
-
-.filter-section>.panel-heading {
-  padding: 9px 15px !important;
 }
 
 .clickable {
@@ -700,15 +769,19 @@ input[type=checkbox].panel-checkbox {
 /* Generated Query Output */
 .query-panel {
   display: flex;
-  justify-content: space-evenly;
+  flex-direction: column;
   align-items: baseline;
   padding-top: 20px;
 }
 
-.query-label {}
-
-#queryOutput {
+.query-label {
   flex: 1;
+}
+
+.query-output {
+  flex: 1;
+  height: 75px !important;
+  resize: none;
 }
 
 /* Intersect panel */

@@ -12,16 +12,30 @@ const locLabels = ['loc', 'location', 'Loc', 'Location'];
 
 router.get('/', async (req, res) => {
   let collection = req.query.collection;
+  let filters = filterBuilder(req.query.filterCollection);
 
   const client = await mongoDBConnection.establishConn(req);
   const db = client.db(req.query.database);
-  db.collection(collection).find({}).limit(config.mapLimit).toArray(function(err, result) {
+  db.collection(collection).find(filters).limit(config.mapLimit).toArray(function(err, result) {
     if (err) throw err;
     res.status(200).send(
       parseJson(result)
     );
   });
 });
+
+function filterBuilder(filters) {
+  let filterList = {};
+
+  if (filters.length === 0) {
+    return filterList;
+  }
+
+  Object.entries(JSON.parse(filters)).map(([key, value]) => {
+    filterList[key] = {'$regex': value, '$options': 'i'};
+  })
+  return filterList;
+}
 
 
 /* Parse the JSON and deterimine the structure of the file
@@ -30,17 +44,24 @@ router.get('/', async (req, res) => {
    Else: Throw error, data needs to be in below format to be visualised*/
 
 function parseJson(json) {
+  if (json.length === 0) {
+    return [];
+  }
+
   let keys = Object.keys(json[0]);
 
   conLatLong = _.intersection(keys, latLongLabels);
-  console.log(conLatLong);
   if (conLatLong.length > 0) {
-    return GeoJSON.parse(json, {Point: [conLatLong[0], conLatLong[1]]});
+    return GeoJSON.parse(json, {
+      Point: [conLatLong[0], conLatLong[1]]
+    });
   }
 
   conLocLabels = _.intersection(keys, locLabels);
   if (conLocLabels.length > 0) {
-    return GeoJSON.parse(json, {GeoJSON: conLocLabels[0]});
+    return GeoJSON.parse(json, {
+      GeoJSON: conLocLabels[0]
+    });
   }
 
   throw console.error('GeoJson needs to be in format of lat, long, or loc{}, location{}');

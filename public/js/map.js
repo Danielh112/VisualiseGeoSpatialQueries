@@ -1,6 +1,7 @@
 let map;
 let drawnItems;
 let drawControl;
+let mapLoading = true;
 
 const geojsonMarkers = {
   radius: 8,
@@ -14,16 +15,59 @@ const geojsonMarkers = {
 
 $(function() {
   initialise();
+
 });
 
 async function initialise() {
-  map = createMap();
+  if (connectionExists()) {
+    map = createMap();
+    mapData = await retrieveData();
+    initialiseMapTools();
+    mapDetails(mapData);
+    createToolTip();
+    if (mapData.features !== undefined) {
+      geoJSONLayer = appendGeoJson(map, mapData);
+      centerMap(map, geoJSONLayer);
+    }
+    showContent();
+  }
+}
+
+async function redrawMap() {
+  contentLoading();
+  clearMapData();
   mapData = await retrieveData();
-  createToolTip();
   geoJSONLayer = appendGeoJson(map, mapData);
-  centerMap(map, geoJSONLayer);
-  initialiseMapTools();
   mapDetails(mapData);
+  if (mapData.features !== undefined) {
+    centerMap(map, geoJSONLayer);
+  }
+  showContent();
+}
+
+function connectionExists() {
+  if (sessionStorage.getItem('url') === null) {
+    window.location.href = '../';
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function contentLoading() {
+  mapLoading = true;
+  $('#contentLoading').removeClass('hidden');
+}
+
+function showContent() {
+  mapLoading = false;
+  $('#contentLoading').addClass('hidden');
+}
+
+function clearMapData() {
+  if (geoJSONLayer !== null) {
+    map.removeLayer(geoJSONLayer);
+  }
 }
 
 /*
@@ -57,6 +101,7 @@ function retrieveData() {
   let password = sessionStorage.getItem('password');
   let database = sessionStorage.getItem('database');
   let collection = sessionStorage.getItem('collection');
+  let filterCollection = sessionStorage.getItem('filterCollection');
 
   return new Promise((resolve, reject) => {
     $.ajax({
@@ -67,7 +112,8 @@ function retrieveData() {
         username: username,
         password: password,
         database: database,
-        collection: collection
+        collection: collection,
+        filterCollection: filterCollection
       },
       dataType: 'json',
       success: function(response) {
@@ -110,17 +156,20 @@ function createToolTip() {
   collection name, total geospatial objects and total geospatial objects */
 function mapDetails(mapDetails) {
   let collection = sessionStorage.getItem('collection');
-  $('#collectionInfo').append(collection);
-
   let totalGeospatialObjects = 0;
+
   $.each(mapDetails.features, function(i, item) {
-      if( Object.entries(item.geometry).length > 0) {
-        totalGeospatialObjects++;
-      }
+    if (Object.entries(item.geometry).length > 0) {
+      totalGeospatialObjects++;
+    }
   });
 
-  $('#collectionGeospatialSize').append(totalGeospatialObjects);
-  $('#collectionSize').append(mapDetails.features.length);
+  $('#collectionInfo').text(`Collection: ${collection}`);
+  if (mapDetails.features) {
+    $('#collectionGeospatialSize').text(`Displaying ${totalGeospatialObjects} Geospatial Objects of ${mapDetails.features.length}.`);
+  } else {
+    $('#collectionGeospatialSize').text(`Displaying 0 Geospatial Objects.`);
+  }
 }
 
 /* On node mouse over
@@ -172,6 +221,6 @@ $(function() {
     const type = e.layerType,
       layer = e.layer;
 
-  drawnItems.addLayer(layer);
+    drawnItems.addLayer(layer);
   });
 });
