@@ -20,6 +20,7 @@
   <script type="text/javascript" src="js/map.js"></script>
   <script type="text/javascript" src="js/mapTools.js"></script>
   <script type="text/javascript" src="js/mapFilters.js"></script>
+  <script type="text/javascript" src="js/query.js"></script>
   <!-- /public/css/.. -->
   <link rel="stylesheet" type="text/css" href="/css/stylesheet.css">
   <!-- Leaflet -->
@@ -309,12 +310,17 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-12 no-margin query-panel">
-          <ul id="query-tabs" class="nav nav-tabs">
-            <li id="" class="tab active"><a href="#">Generated Query:</a></li>
-            <li id="" class="tab"><a href="#">Query Output</a></li>
+        <div class="col-md-12 margin-bottom-md query-panel">
+          <ul id="tabs" class="nav nav-tabs">
+            <li id="generated-query" class="tab active"><a href="#">Generated Query:</a></li>
+            <li id="execute-query" class="tab execute-query"><a href="#">Query Output</a></li>
           </ul>
-          <textarea rows = "5" cols = "60" id="generatedQuery" class="form-control query-output" placeholder="db.collection.find(...)"></textarea>
+          <div id="generated-query-container">
+            <div id="generatedQuery" class="form-control query-output"></div>
+          </div>
+          <div id="execute-query-container">
+
+          </div>
         </div>
       </div>
     </div>

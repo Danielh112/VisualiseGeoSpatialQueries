@@ -613,6 +613,10 @@ div.tooltip {
   padding-bottom: 3px;
 }
 
+#generated-query-container {
+  width: 100%;
+}
+
 .tab {
   z-index: 2
 }

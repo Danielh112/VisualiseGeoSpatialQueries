@@ -163,15 +163,15 @@ function togglePanel(panel) {
 
 /* Change Tab (Tools/Filters) */
 function changeTab(tab) {
-  var t = $(tab).attr('id');
-  if (!$(tab).hasClass('active')) {
-    $('#tabs li').removeClass('active');
-    $(tab).addClass('active');
+  var tabId = $(tab).attr('id');
+  prevTab = $(tab).parent().find('.active');
 
-    $('#' + t + '-container').removeClass('hidden');
-    $('.side-panel').hide();
-    $('#' + t + '-container').show();
-  }
+  prevTab.removeClass('active');
+  $('#' + prevTab.attr('id') + '-container').hide();
+
+  $(tab).addClass('active');
+  $('#' + tabId + '-container').removeClass('hidden');
+  $('#' + tabId + '-container').show();
 }
 
 /* If the button is not disabled
@@ -506,19 +506,6 @@ function nearSphereToggle(toggle) {
   queryOutput(generatedQuery);
 }
 
-/* If a polygon has already been drawn validate if the user wants to redraw that shape */
-/*
-function polygonExists() {
-  if (toolMode === 'geoIntersects' && geoIntersects.polygonDrawn === true) {
-    return true;
-  } else if (toolMode === 'geoWithin' && geoWithin.polygonDrawn === true) {
-    return true;
-  }
-  return false;
-}
-*/
-
-
 function polygonToolSelection(tool) {
   if (toolMode === 'geoIntersects') {
     if (geoIntersects.tool === 'auto') {
@@ -574,7 +561,7 @@ function drawPolygon(shape) {
 
 function queryOutput(generateQuery) {
   generateQuery.then(function(query) {
-    $('#generatedQuery').val(query.trim());
+    $('#generatedQuery').text(query.trim());
     $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
   });
 }

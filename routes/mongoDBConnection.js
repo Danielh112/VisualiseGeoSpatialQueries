@@ -92,7 +92,7 @@ router.get('/findDocuments', async (req, res) => {
   });
 });
 
-router.get('/runQuery', async (req, res) => {
+router.get('/executeQuery', async (req, res) => {
   const client = await establishConn(req);
   const db = client.db(req.query.database);
   const collection = req.query.collection;
@@ -100,9 +100,7 @@ router.get('/runQuery', async (req, res) => {
   const query = req.query.query;
   const limit = parseInt(req.query.limit);
 
-  db.collection(collection).find({
-    query
-  }).limit(limit).toArray(function(err, result) {
+  db.collection(collection).find().limit(limit).toArray(function(err, result) {
     if (err) throw err;
     res.status(200).send(
       result
