@@ -80,6 +80,8 @@ function createMap() {
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGFuaWVsaDExMiIsImEiOiJjanJ4ZjFmM24wa3JtNDludmxlYzhndmoxIn0._VvtW1VgcpUNRqFchxOl7A', {
     attribution: 'MapgenerateSelectionWindow data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
+    minZoom: 1,
+    noWrap: false,
     id: 'mapbox.streets',
     accessToken: 'your.mapbox.access.token'
   }).addTo(map);
@@ -87,6 +89,43 @@ function createMap() {
   return map
 }
 
+/*
+Retrieve data from /map API
+  Note: Currently retrieving user credentials inputted from session storage
+        and only used in development environment, not to be done in
+        live implementation.
+*/
+
+function collectionDetails() {
+  let url = sessionStorage.getItem('url');
+  let username = sessionStorage.getItem('username');
+  let password = sessionStorage.getItem('password');
+  let database = sessionStorage.getItem('database');
+  let collection = sessionStorage.getItem('collection');
+
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: 'http://localhost:3000/api/mongoDB/collection/size',
+      type: 'get',
+      data: {
+        url: encodeURIComponent(url),
+        username: username,
+        password: password,
+        database: database,
+        collection: collection
+      },
+      dataType: 'json',
+      success: function(response) {
+        resolve(response);
+      },
+      error: function(err) {
+        //TODO display error in UI
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+}
 
 /*
 Retrieve data from /map API
@@ -154,7 +193,8 @@ function createToolTip() {
 
 /* Display Information regarding to the collection inc,
   collection name, total geospatial objects and total geospatial objects */
-function mapDetails(mapDetails) {
+async function mapDetails(mapDetails) {
+  const collectionSize = await collectionDetails();
   let collection = sessionStorage.getItem('collection');
   let totalGeospatialObjects = 0;
 
@@ -166,7 +206,7 @@ function mapDetails(mapDetails) {
 
   $('#collectionInfo').text(`Collection: ${collection}`);
   if (mapDetails.features) {
-    $('#collectionGeospatialSize').text(`Displaying ${totalGeospatialObjects} Geospatial Objects of ${mapDetails.features.length}.`);
+    $('#collectionGeospatialSize').text(`Displaying ${totalGeospatialObjects} Geospatial Objects of ${collectionSize.documentCount} Documents`);
   } else {
     $('#collectionGeospatialSize').text(`Displaying 0 Geospatial Objects.`);
   }
@@ -209,9 +249,8 @@ function initialiseMapTools() {
   drawnItems = new L.FeatureGroup();
   map.addLayer(drawnItems);
   drawControl = new L.Control.Draw({
-    edit: {
-      featureGroup: drawnItems
-    }
+    draw: false,
+    edit: false,
   });
   map.addControl(drawControl);
 }

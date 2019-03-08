@@ -66,6 +66,21 @@ router.get('/collection/attributes', async (req, res) => {
   });
 });
 
+router.get('/collection/size', async (req, res) => {
+  let collection = req.query.collection;
+
+  const client = await establishConn(req);
+  const db = client.db(req.query.database);
+
+  db.collection(collection).estimatedDocumentCount({}, function(err, result){
+    if (err) throw err;
+    console.log(result);
+    res.status(200).send(
+      {'documentCount': result}
+    );
+  });
+});
+
 router.get('/findDocuments', async (req, res) => {
   const client = await establishConn(req);
   const db = client.db(req.query.database);
@@ -97,10 +112,12 @@ router.get('/executeQuery', async (req, res) => {
   const db = client.db(req.query.database);
   const collection = req.query.collection;
 
-  const query = req.query.query;
+  const query = JSON.parse(req.query.query);
+
   const limit = parseInt(req.query.limit);
 
-  db.collection(collection).find().limit(limit).toArray(function(err, result) {
+
+  db.collection(collection).find(query).limit(limit).toArray(function(err, result) {
     if (err) throw err;
     res.status(200).send(
       result

@@ -599,6 +599,12 @@ div.tooltip {
   margin: 3px 0px 0px 4px;
 }
 
+@media (max-width: 991px) {
+  #tabs {
+    padding-top: 10px;
+  }
+}
+
 #tabs>li>a {
   padding-top: 3px;
   padding-bottom: 3px;
