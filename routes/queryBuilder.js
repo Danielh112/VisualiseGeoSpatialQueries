@@ -65,7 +65,7 @@ function spatialQuery(req) {
 
   const collection = req.query.collection;
   const queryType = req.query.queryType;
-  const coordinates = coordinateExpr(req.query.geometry.coordinates);
+  const coordinates = coordinateExpr(req.query.geometry.geometry.coordinates);
 
   console.log(coordinates);
 

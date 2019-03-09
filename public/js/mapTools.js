@@ -74,12 +74,10 @@ $(document).ready(function() {
     clearMapDrawings();
     if (toolMode === 'near') {
       redrawMarker();
-    } else {
-      if (toolMode === 'geoIntersects') {
-        polygonToolSelection(geoIntersects.selectedTool); 
-      } else if (toolMode === 'geoWithin') {
-        polygonToolSelection(geoIntersects.selectedTool);
-      }
+    } else if (toolMode === 'geoIntersects') {
+      polygonToolSelection(geoIntersects);
+    } else if (toolMode === 'geoWithin') {
+      polygonToolSelection(geoWithin);
     }
   });
 
@@ -137,14 +135,18 @@ $(document).ready(function() {
   $('.intersect-icon').mousedown(function() {
     if (toolMode === 'geoIntersects') {
       geoIntersects.selectedTool = $(this);
+      if (!polygonExists('manual')) {
+        polygonToolSelection(geoIntersects);
+      } else {
+        $('#redraw-polygon-modal').modal('toggle');
+      }
     } else if (toolMode === 'geoWithin') {
       geoWithin.selectedTool = $(this);
-    }
-
-    if (!polygonExists('manual')) {
-      polygonToolSelection($(this));
-    } else {
-      $('#redraw-polygon-modal').modal('toggle');
+      if (!polygonExists('manual')) {
+        polygonToolSelection(geoWithin);
+      } else {
+        $('#redraw-polygon-modal').modal('toggle');
+      }
     }
   });
 
@@ -379,27 +381,9 @@ function markerDrawn(marker) {
 
 function polygonDrawn(polygon) {
   if (toolMode === 'geoIntersects') {
-    geoIntersects.polygonDrawn = true;
-    geoIntersects.shape = polygon.layer;
-    geoIntersects.geo.geometry = polygon.layer.toGeoJSON();
-    if (geoIntersects.selectedTool[0].id === 'circleTool') {
-      geoIntersects.geo.geometry.properties.radius = polygon.layer.getRadius();
-    }
-
-    const generatedQuery = queryBuilder(geoIntersects.geo.geometry);
-    queryOutput(generatedQuery);
-
+    setPolygonDrawn(geoIntersects, polygon.layer);
   } else if (toolMode === 'geoWithin') {
-    geoWithin.polygonDrawn = true;
-    geoWithin.shape = polygon.layer;
-    geoWithin.geo.geometry = polygon.layer.toGeoJSON();
-    if (geoWithin.selectedTool[0].id === 'circleTool') {
-      geoWithin.geo.geometry.properties.radius = polygon.layer.getRadius();
-    }
-
-    const generatedQuery = queryBuilder(geoWithin.geo.geometry);
-    queryOutput(generatedQuery);
-
+    setPolygonDrawn(geoWithin, polygon.layer);
   }
   geoJSONLayer.bringToFront();
 }
@@ -410,13 +394,9 @@ function autoDrawPolygon(shape) {
     shape = L.marker(geometry).addTo(map);
 
     if (toolMode === 'geoIntersects') {
-      geoIntersects.polygonDrawn = true;
-      geoIntersects.shape = shape;
-      geoIntersects.geo.geometry = shape.toGeoJSON();
+      setPolygonDrawn(geoIntersects, polygon.layer);
     } else if (toolMode === 'geoWithin') {
-      geoWithin.polygonDrawn = true;
-      geoWithin.shape = shape;
-      geoWithin.geo.geometry = shape.toGeoJSON();
+      setPolygonDrawn(geoWithin, polygon.layer);
     }
   } else {
     if (toolMode === 'geoIntersects') {
@@ -426,6 +406,18 @@ function autoDrawPolygon(shape) {
     }
   }
   geoJSONLayer.bringToFront();
+}
+
+function setPolygonDrawn(object, polygon) {
+  object.polygonDrawn = true;
+  object.shape = polygon;
+  object.geo.geometry = polygon.toGeoJSON();
+  if (object.selectedTool[0].id === 'circleTool') {
+    object.geo.geometry.properties.radius = polygon.getRadius();
+  }
+
+  const generatedQuery = queryBuilder(object.geo.geometry);
+  queryOutput(generatedQuery);
 }
 
 function redrawMarker() {
@@ -526,62 +518,35 @@ function nearSphereToggle(toggle) {
   queryOutput(generatedQuery);
 }
 
-function polygonToolSelection(tool) {
-  if (toolMode === 'geoIntersects') {
-    if (geoIntersects.tool === 'auto') {
-      autoDrawPolygon(geoIntersects.nextShape);
-    } else if (geoIntersects.tool === 'manual') {
-      manualToolSelection(tool);
-    }
-  } else if (toolMode === 'geoWithin') {
-    if (geoWithin.tool === 'auto') {
-      autoDrawPolygon(geoWithin.nextShape);
-    } else if (geoWithin.tool === 'manual') {
-      manualToolSelection(tool);
-    }
+function polygonToolSelection(object) {
+  if (object.tool === 'auto') {
+    autoDrawPolygon(tool.nextShape);
+  } else if (object.tool === 'manual') {
+    polygonToolSelection(object);
   }
 }
 
-function manualToolSelection(tool) {
-  toolId = tool[0].id;
+function polygonToolSelection(object) {
+  selectedTool = object.selectedTool;
+  toolId = selectedTool[0].id;
   currentToolId = '';
 
-  if (toolMode === 'geoIntersects') {
-    if (geoIntersects.polygonTool !== '') {
-      currentToolId = geoIntersects.polygonTool[0].id;
-    }
+  if (object.polygonTool !== '') {
+    currentToolId = object.polygonTool[0].id;
+  }
 
-    if (currentToolId === '') {
-      tool.addClass('btn-default-selected');
-      geoIntersects.polygonTool = tool;
-      drawPolygon(tool[0].id);
-    } else if (currentToolId === toolId) {
-      geoIntersects.polygonTool = tool;
-      drawPolygon(tool[0].id);;
-    } else {
-      geoIntersects.polygonTool.removeClass('btn-default-selected');
-      tool.addClass('btn-default-selected');
-      geoIntersects.polygonTool = tool;
-      drawPolygon(tool[0].id);
-    }
-  } else if (toolMode === 'geoWithin') {
-    if (geoWithin.polygonTool !== '') {
-      currentToolId = geoWithin.polygonTool[0].id;
-    }
-
-    if (currentToolId === '') {
-      tool.addClass('btn-default-selected');
-      geoWithin.polygonTool = tool;
-      drawPolygon(tool[0].id);
-    } else if (currentToolId === toolId) {
-      geoWithin.polygonTool = tool;
-      drawPolygon(tool[0].id);;
-    } else {
-      geoWithin.polygonTool.removeClass('btn-default-selected');
-      tool.addClass('btn-default-selected');
-      geoWithin.polygonTool = tool;
-      drawPolygon(tool[0].id);
-    }
+  if (currentToolId === '') {
+    selectedTool.addClass('btn-default-selected');
+    object.polygonTool = selectedTool;
+    drawPolygon(selectedTool[0].id);
+  } else if (currentToolId === toolId) {
+    object.polygonTool = selectedTool;
+    drawPolygon(selectedTool[0].id);;
+  } else {
+    object.polygonTool.removeClass('btn-default-selected');
+    selectedTool.addClass('btn-default-selected');
+    object.polygonTool = selectedTool;
+    drawPolygon(selectedTool[0].id);
   }
 }
 
@@ -658,7 +623,7 @@ function queryBuilder(geoJson, maxDistance, minDistance) {
       data: {
         collection: collection,
         queryType: toolMode,
-        geometry: geoJson.geometry,
+        geometry: geoJson,
         maxDistance: maxDistance,
         minDistance: minDistance
       },
