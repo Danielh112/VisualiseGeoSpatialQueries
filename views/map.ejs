@@ -20,6 +20,7 @@
   <script type="text/javascript" src="js/map.js"></script>
   <script type="text/javascript" src="js/mapTools.js"></script>
   <script type="text/javascript" src="js/mapFilters.js"></script>
+  <script type="text/javascript" src="js/mapQuery.js"></script>
   <!-- /public/css/.. -->
   <link rel="stylesheet" type="text/css" href="/css/stylesheet.css">
   <!-- Leaflet -->
@@ -107,7 +108,7 @@
                     </div>
                     <div class="panel-body hidden">
                       <div class="text-center">
-                        <label class="float-left" for="maximumDistInput">Set maximum Distance from point (km)</label> <br>
+                        <label class="float-left" for="maximumDistInput">Set maximum Distance from point (Meters)</label> <br>
                         <input type="number" id="maximumDistInput" class="form-control form-input w-100" placeholder="500" value="">
                       </div>
                       <div>
@@ -119,7 +120,7 @@
                             </h3>
                           </div>
                           <div class="panel-body no-padding padding-bottom-sm padding-top-sm">
-                            <label for="minimumDistInput">Set minimum distance from point (km)</label>
+                            <label for="minimumDistInput">Set minimum distance from point (Meters)</label>
                             <input type="number" id="minimumDistInput" class="form-control form-input w-100" placeholder="5" value="">
                             <ul class="list-unstyled padding-left-x-sm">
                               <li>
@@ -309,12 +310,17 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-12 no-margin query-panel">
-          <ul id="query-tabs" class="nav nav-tabs">
-            <li id="" class="tab active"><a href="#">Generated Query:</a></li>
-            <li id="" class="tab"><a href="#">Query Output</a></li>
+        <div class="col-md-12 margin-bottom-md query-panel">
+          <ul id="tabs" class="nav nav-tabs">
+            <li id="generated-query" class="tab active"><a href="#">Generated Query:</a></li>
+            <li id="execute-query" class="tab execute-query"><a href="#">Query Output</a></li>
           </ul>
-          <textarea rows = "5" cols = "60" id="generatedQuery" class="form-control query-output" placeholder="db.collection.find(...)"></textarea>
+          <div id="generated-query-container">
+            <div id="generatedQuery" class="form-control query-output"></div>
+          </div>
+          <div id="execute-query-container" class="form-control query-output hidden">
+
+          </div>
         </div>
       </div>
     </div>

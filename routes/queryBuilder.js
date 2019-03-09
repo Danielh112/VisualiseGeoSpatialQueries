@@ -32,10 +32,10 @@ function nearQuery(req) {
   return `
   db.${collection}.find(
     {
-       location:
-         { $${queryType} :
+       "location":
+         { "$${queryType}" :
             {
-              $geometry: { type: "Point", coordinates: [${coordinates}] }
+              "$geometry": { "type": "Point", "coordinates": [${coordinates}] }
               ${maxDistance}
               ${minDistance}
             }
@@ -48,15 +48,15 @@ function maxDistanceExpr(distance) {
   if (distance === undefined) {
     return '';
   } else {
-    return `,$maxDistance: ${distance}`;
+    return `,"$maxDistance": ${distance}`;
   }
 }
 
 function minDistanceExpr(distance) {
-  if (distance === undefined) {
+  if (distance === undefined || distance === '') {
     return '';
   } else {
-    return `,$minDistance: ${distance}`;
+    return `,"$minDistance": ${distance}`;
   }
 }
 
@@ -65,17 +65,17 @@ function spatialQuery(req) {
 
   const collection = req.query.collection;
   const queryType = req.query.queryType;
-  const coordinates = coordinateExpr(req.query.geometry.coordinates);
+  const coordinates = coordinateExpr(req.query.geometry.geometry.coordinates);
 
   console.log(coordinates);
 
   return `
   db.${collection}.find(
     {
-       location:
-         { $${queryType} :
+       "location":
+         { "$${queryType}" :
             {
-              $geometry: { type: "Polygon", coordinates: ${coordinates} }
+              "$geometry": { "type": "Polygon", "coordinates": ${coordinates} }
             }
          }
      }

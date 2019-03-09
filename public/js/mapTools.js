@@ -74,8 +74,10 @@ $(document).ready(function() {
     clearMapDrawings();
     if (toolMode === 'near') {
       redrawMarker();
-    } else {
-      polygonToolSelection(geoIntersects.selectedTool);
+    } else if (toolMode === 'geoIntersects') {
+      polygonToolSelection(geoIntersects);
+    } else if (toolMode === 'geoWithin') {
+      polygonToolSelection(geoWithin);
     }
   });
 
@@ -131,11 +133,20 @@ $(document).ready(function() {
   /* ---------------- Intersection Panel: Changes and inputs ----------------*/
   /* Step 1: Draw polgon or find Existing shape */
   $('.intersect-icon').mousedown(function() {
-    if (!polygonExists('manual')) {
-      polygonToolSelection($(this));
-    } else {
-      $('#redraw-polygon-modal').modal('toggle');
+    if (toolMode === 'geoIntersects') {
       geoIntersects.selectedTool = $(this);
+      if (!polygonExists('manual')) {
+        polygonToolSelection(geoIntersects);
+      } else {
+        $('#redraw-polygon-modal').modal('toggle');
+      }
+    } else if (toolMode === 'geoWithin') {
+      geoWithin.selectedTool = $(this);
+      if (!polygonExists('manual')) {
+        polygonToolSelection(geoWithin);
+      } else {
+        $('#redraw-polygon-modal').modal('toggle');
+      }
     }
   });
 
@@ -163,15 +174,15 @@ function togglePanel(panel) {
 
 /* Change Tab (Tools/Filters) */
 function changeTab(tab) {
-  var t = $(tab).attr('id');
-  if (!$(tab).hasClass('active')) {
-    $('#tabs li').removeClass('active');
-    $(tab).addClass('active');
+  var tabId = $(tab).attr('id');
+  prevTab = $(tab).parent().find('.active');
 
-    $('#' + t + '-container').removeClass('hidden');
-    $('.side-panel').hide();
-    $('#' + t + '-container').show();
-  }
+  prevTab.removeClass('active');
+  $('#' + prevTab.attr('id') + '-container').hide();
+
+  $(tab).addClass('active');
+  $('#' + tabId + '-container').removeClass('hidden');
+  $('#' + tabId + '-container').show();
 }
 
 /* If the button is not disabled
@@ -345,7 +356,7 @@ function autoDrawMarker(shape) {
     near.marker = shape;
     near.geo.geometry = shape.toGeoJSON();
 
-    var latLngs = [ shape.getLatLng() ];
+    var latLngs = [shape.getLatLng()];
     var markerBounds = L.latLngBounds(latLngs);
     map.fitBounds(markerBounds);
 
@@ -360,9 +371,6 @@ function shapeDrawn(shape) {
   } else {
     polygonDrawn(shape);
   }
-
-  const generatedQuery = queryBuilder(shape.layer.toGeoJSON());
-  queryOutput(generatedQuery);
 }
 
 function markerDrawn(marker) {
@@ -373,14 +381,11 @@ function markerDrawn(marker) {
 
 function polygonDrawn(polygon) {
   if (toolMode === 'geoIntersects') {
-    geoIntersects.polygonDrawn = true;
-    geoIntersects.shape = polygon.layer;
-    geoIntersects.geo.geometry = polygon.layer.toGeoJSON();
+    setPolygonDrawn(geoIntersects, polygon.layer);
   } else if (toolMode === 'geoWithin') {
-    geoWithin.polygonDrawn = true;
-    geoWithin.shape = polygon.layer;
-    geoWithin.geo.geometry = polygon.layer.toGeoJSON();
+    setPolygonDrawn(geoWithin, polygon.layer);
   }
+  geoJSONLayer.bringToFront();
 }
 
 function autoDrawPolygon(shape) {
@@ -389,13 +394,9 @@ function autoDrawPolygon(shape) {
     shape = L.marker(geometry).addTo(map);
 
     if (toolMode === 'geoIntersects') {
-      geoIntersects.polygonDrawn = true;
-      geoIntersects.shape = shape;
-      geoIntersects.geo.geometry = shape.toGeoJSON();
+      setPolygonDrawn(geoIntersects, polygon.layer);
     } else if (toolMode === 'geoWithin') {
-      geoWithin.polygonDrawn = true;
-      geoWithin.shape = shape;
-      geoWithin.geo.geometry = shape.toGeoJSON();
+      setPolygonDrawn(geoWithin, polygon.layer);
     }
   } else {
     if (toolMode === 'geoIntersects') {
@@ -404,6 +405,19 @@ function autoDrawPolygon(shape) {
       geoWithin.nextShape = shape;
     }
   }
+  geoJSONLayer.bringToFront();
+}
+
+function setPolygonDrawn(object, polygon) {
+  object.polygonDrawn = true;
+  object.shape = polygon;
+  object.geo.geometry = polygon.toGeoJSON();
+  if (object.selectedTool[0].id === 'circleTool') {
+    object.geo.geometry.properties.radius = polygon.getRadius();
+  }
+
+  const generatedQuery = queryBuilder(object.geo.geometry);
+  queryOutput(generatedQuery);
 }
 
 function redrawMarker() {
@@ -418,10 +432,6 @@ function redrawMarker() {
   } else {
     autoDrawMarker(near.nextShape);
   }
-}
-
-function redrawPolygon() {
-
 }
 
 function polygonExists(mode) {
@@ -459,10 +469,11 @@ function maxDistCircle(distance) {
     if (maxDistShape !== '') {
       map.removeLayer(maxDistShape);
     }
-    near.distance.maxDistShape = L.circle(coordinates, parseInt(distance * 1000, 10)).addTo(map);
+    near.distance.maxDistShape = L.circle(coordinates, parseInt(distance, 10)).addTo(map);
 
     const generatedQuery = queryBuilder(near.geo.geometry, distance, near.distance.minDistance);
     queryOutput(generatedQuery);
+    geoJSONLayer.bringToFront();
   }
 }
 
@@ -484,7 +495,7 @@ function minDistCircle(distance) {
     }
 
     near.distance.minDistShape = L.circle(coordinates, {
-      radius: parseInt(distance * 1000, 10),
+      radius: parseInt(distance, 10),
       color: '#ed8c7b',
       fillColor: '#ed8c7b',
       opacity: 1.0
@@ -492,6 +503,7 @@ function minDistCircle(distance) {
 
     const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance, distance);
     queryOutput(generatedQuery);
+    geoJSONLayer.bringToFront();
   }
 }
 
@@ -506,55 +518,35 @@ function nearSphereToggle(toggle) {
   queryOutput(generatedQuery);
 }
 
-/* If a polygon has already been drawn validate if the user wants to redraw that shape */
-/*
-function polygonExists() {
-  if (toolMode === 'geoIntersects' && geoIntersects.polygonDrawn === true) {
-    return true;
-  } else if (toolMode === 'geoWithin' && geoWithin.polygonDrawn === true) {
-    return true;
-  }
-  return false;
-}
-*/
-
-
-function polygonToolSelection(tool) {
-  if (toolMode === 'geoIntersects') {
-    if (geoIntersects.tool === 'auto') {
-      autoDrawPolygon(geoIntersects.nextShape);
-    } else if (geoIntersects.tool === 'manual') {
-      manualToolSelection(tool);
-    }
-  } else if (toolMode === 'geoWithin') {
-    if (geoWithin.tool === 'auto') {
-      autoDrawPolygon(geoWithin.nextShape);
-    } else if (geoWithin.tool === 'manual') {
-      manualToolSelection(tool);
-    }
+function polygonToolSelection(object) {
+  if (object.tool === 'auto') {
+    autoDrawPolygon(tool.nextShape);
+  } else if (object.tool === 'manual') {
+    polygonToolSelection(object);
   }
 }
 
-function manualToolSelection(tool) {
-  toolId = tool[0].id;
+function polygonToolSelection(object) {
+  selectedTool = object.selectedTool;
+  toolId = selectedTool[0].id;
   currentToolId = '';
 
-  if (geoIntersects.polygonTool !== '') {
-    currentToolId = geoIntersects.polygonTool[0].id;
+  if (object.polygonTool !== '') {
+    currentToolId = object.polygonTool[0].id;
   }
 
   if (currentToolId === '') {
-    tool.addClass('btn-default-selected');
-    geoIntersects.polygonTool = tool;
-    drawPolygon(tool[0].id);
+    selectedTool.addClass('btn-default-selected');
+    object.polygonTool = selectedTool;
+    drawPolygon(selectedTool[0].id);
   } else if (currentToolId === toolId) {
-    geoIntersects.polygonTool = tool;
-    drawPolygon(tool[0].id);;
+    object.polygonTool = selectedTool;
+    drawPolygon(selectedTool[0].id);;
   } else {
-    geoIntersects.polygonTool.removeClass('btn-default-selected');
-    tool.addClass('btn-default-selected');
-    geoIntersects.polygonTool = tool;
-    drawPolygon(tool[0].id);
+    object.polygonTool.removeClass('btn-default-selected');
+    selectedTool.addClass('btn-default-selected');
+    object.polygonTool = selectedTool;
+    drawPolygon(selectedTool[0].id);
   }
 }
 
@@ -574,7 +566,7 @@ function drawPolygon(shape) {
 
 function queryOutput(generateQuery) {
   generateQuery.then(function(query) {
-    $('#generatedQuery').val(query.trim());
+    $('#generatedQuery').text(query.trim());
     $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
   });
 }
@@ -631,7 +623,7 @@ function queryBuilder(geoJson, maxDistance, minDistance) {
       data: {
         collection: collection,
         queryType: toolMode,
-        geometry: geoJson.geometry,
+        geometry: geoJson,
         maxDistance: maxDistance,
         minDistance: minDistance
       },
