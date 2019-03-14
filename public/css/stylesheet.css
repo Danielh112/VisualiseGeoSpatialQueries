@@ -792,6 +792,7 @@ input[type=checkbox].panel-checkbox {
   flex: 1;
   height: 75px !important;
   resize: none;
+  overflow: auto;
 }
 
 /* Intersect panel */

@@ -96,7 +96,7 @@ $(document).ready(function() {
   $(".find-documents").autocomplete({
     source: function(request, response) {
       $.when(
-        findDocuments($(this)[0].term)
+        findDocuments({name: $(this)[0].term})
       ).then(function(suggestions) {
         response(suggestions);
       })
@@ -360,6 +360,12 @@ function autoDrawMarker(shape) {
     var markerBounds = L.latLngBounds(latLngs);
     map.fitBounds(markerBounds);
 
+    $('#drawPoint').addClass('btn-default-clicked');
+    $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
+
+    const generatedQuery = queryBuilder(near.geo.geometry.geometry);
+    queryOutput(generatedQuery);
+
   } else {
     near.nextShape = shape;
   }
@@ -377,6 +383,10 @@ function markerDrawn(marker) {
   near.markerDrawn = true;
   near.marker = marker.layer;
   near.geo.geometry = marker.layer.toGeoJSON();
+  $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
+
+  const generatedQuery = queryBuilder(near.geo.geometry.geometry);
+  queryOutput(generatedQuery);
 }
 
 function polygonDrawn(polygon) {
@@ -564,14 +574,16 @@ function drawPolygon(shape) {
   currentDrawTool.enable();
 }
 
-function queryOutput(generateQuery) {
-  generateQuery.then(function(query) {
+function queryOutput(GenerateQuery) {
+  GenerateQuery.then(function(query) {
     $('#generatedQuery').text(query.trim());
     $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
+
+    executeQuery(query.trim());
   });
 }
 
-function findDocuments(searchParam) {
+function findDocuments(searchParam, mode) {
   let url = sessionStorage.getItem('url');
   let username = sessionStorage.getItem('username');
   let password = sessionStorage.getItem('password');
@@ -588,8 +600,10 @@ function findDocuments(searchParam) {
         password: password,
         database: database,
         collection: collection,
+        mode: mode,
         searchParam: searchParam,
         toolMode: toolMode,
+
         limit: 3
       },
       success: function(response) {

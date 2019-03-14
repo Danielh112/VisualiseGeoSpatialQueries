@@ -72,12 +72,12 @@ router.get('/collection/size', async (req, res) => {
   const client = await establishConn(req);
   const db = client.db(req.query.database);
 
-  db.collection(collection).estimatedDocumentCount({}, function(err, result){
+  db.collection(collection).estimatedDocumentCount({}, function(err, result) {
     if (err) throw err;
     console.log(result);
-    res.status(200).send(
-      {'documentCount': result}
-    );
+    res.status(200).send({
+      'documentCount': result
+    });
   });
 });
 
@@ -86,23 +86,39 @@ router.get('/findDocuments', async (req, res) => {
   const db = client.db(req.query.database);
   const collection = req.query.collection;
 
+  const mode = req.query.mode;
   const searchParam = req.query.searchParam;
   const shapeType = locType(req.query.toolMode);
   const limit = parseInt(req.query.limit);
 
-  db.collection(collection).find({
-    'name': {
-      '$regex': `${searchParam}`,
-      '$options': 'i'
-    },
-    'location.type': `${shapeType}`
-  }).limit(limit).toArray(function(err, result) {
+  let findParam = {};
+
+  for (key in searchParam) {
+    if (searchParam.hasOwnProperty(key)) {
+      findParam[key] = {
+        '$regex': `${searchParam[key]}`,
+        '$options': 'i'
+      }
+    }
+  }
+
+  if (mode !== 'filters') {
+    findParam['location.type'] = `${shapeType}`;
+  }
+
+  db.collection(collection).find(findParam, { projection: { [`${Object.keys(findParam)[0]}`]: 1 }}).limit(limit).toArray(function(err, result) {
+    newResult = '';
+
     if (err) throw err;
     if (result.length === 0) {
-      result.push(`No results matched your search criteria`);
+      newResult.push(`No results matched your search criteria`);
+    } else {
+      newResult = result.map(function(object) {
+         return { _id: object['_id'], name: object[Object.keys(findParam)[0]]};
+      });
     }
     res.status(200).send(
-      result
+      newResult
     );
   });
 });
@@ -113,9 +129,7 @@ router.get('/executeQuery', async (req, res) => {
   const collection = req.query.collection;
 
   const query = JSON.parse(req.query.query);
-
   const limit = parseInt(req.query.limit);
-
 
   db.collection(collection).find(query).limit(limit).toArray(function(err, result) {
     if (err) throw err;

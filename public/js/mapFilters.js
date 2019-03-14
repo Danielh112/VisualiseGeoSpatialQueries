@@ -99,7 +99,7 @@ function displayAttributes(attributes) {
                 </div>
               </div>
               <div class="panel-body">
-                <input type="text" id="${attribute}" class="form-control form-input filter-input" placeholder="Filter on..." value="${attrValue}">
+                <input type="text" id="${attribute}" class="find-documents form-control form-input filter-input" placeholder="Filter on..." value="${attrValue}">
               </div>
             </td></tr>`);
     } else {
@@ -113,9 +113,27 @@ function displayAttributes(attributes) {
                 </div>
               </div>
               <div class="panel-body">
-                <input type="text" id="${attribute}" class="form-control form-input filter-input" placeholder="Filter on..." value="${attrValue}">
+                <input type="text" id="${attribute}" class="find-documents form-control form-input filter-input" placeholder="Filter on..." value="${attrValue}">
               </div>
             </td></tr>`);
     }
+
+
+    $('#collection-list-items').find('input[type=text]:last').autocomplete({
+      source: function(request, response) {
+        $.when(
+          findDocuments({[`${$(this.element).prop('id')}`]: `${$(this)[0].term}`}, 'filters')
+        ).then(function(suggestions) {
+          response(suggestions);
+        })
+      },
+      minLength: 0,
+      focus: function(event, ui) {
+        ui.item.value = ui.item.label;
+      },
+      select: function(event, ui) {
+        ui.item.value = ui.item.label;
+      }
+    });
   });
 }

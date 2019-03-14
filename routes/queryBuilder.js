@@ -10,8 +10,11 @@ router.get('/', async (req, res, next) => {
     query = nearQuery(req, next);
   }
 
+  /* If the geospatial object does not contain properties
+  it means we are searching within/interesecting a spatial polygon */
+
   if (queryType === 'geoIntersects' || queryType === 'geoWithin') {
-    query = spatialQuery(req, next);
+    query = spatialObjectQuery(req, next);
   }
 
   var response = {
@@ -61,11 +64,12 @@ function minDistanceExpr(distance) {
 }
 
 
-function spatialQuery(req) {
+function spatialObjectQuery(req) {
 
   const collection = req.query.collection;
   const queryType = req.query.queryType;
   const coordinates = coordinateExpr(req.query.geometry.geometry.coordinates);
+  const properties = req.query.geometry.geometry.properties;
 
   console.log(coordinates);
 
@@ -76,6 +80,28 @@ function spatialQuery(req) {
          { "$${queryType}" :
             {
               "$geometry": { "type": "Polygon", "coordinates": ${coordinates} }
+            }
+         }
+     }
+   )`;
+}
+
+function centerSphereQuery(req) {
+
+  const collection = req.query.collection;
+  const queryType = req.query.queryType;
+  const coordinates = coordinateExpr(req.query.geometry.geometry.coordinates);
+  const properties = req.query.geometry.properties;
+
+  //$geoWithin: { $centerSphere: [ [ <x>, <y> ], <radius> ] }
+
+  return `
+  db.${collection}.find(
+    {
+       "location":
+         { "$${queryType}" :
+            {
+              "$centerSphere": [ ${coordinates} , ${properties.radius} ]
             }
          }
      }
