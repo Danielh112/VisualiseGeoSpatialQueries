@@ -87,35 +87,22 @@ router.get('/findDocuments', async (req, res) => {
   const collection = req.query.collection;
 
   const mode = req.query.mode;
-  const searchParam = req.query.searchParam;
+  const findParam = findParams(req.query.searchParam);
   const shapeType = locType(req.query.toolMode);
   const limit = parseInt(req.query.limit);
-
-  let findParam = {};
-
-  for (key in searchParam) {
-    if (searchParam.hasOwnProperty(key)) {
-      findParam[key] = {
-        '$regex': `${searchParam[key]}`,
-        '$options': 'i'
-      }
-    }
-  }
 
   if (mode !== 'filters') {
     findParam['location.type'] = `${shapeType}`;
   }
 
-  db.collection(collection).find(findParam, { projection: { [`${Object.keys(findParam)[0]}`]: 1 }}).limit(limit).toArray(function(err, result) {
+  db.collection(collection).find(findParam).limit(limit).toArray(function(err, result) {
     newResult = '';
 
     if (err) throw err;
     if (result.length === 0) {
       newResult.push(`No results matched your search criteria`);
     } else {
-      newResult = result.map(function(object) {
-         return { _id: object['_id'], name: object[Object.keys(findParam)[0]]};
-      });
+      newResult = renameField(result, Object.keys(findParam)[0]);
     }
     res.status(200).send(
       newResult
@@ -138,6 +125,28 @@ router.get('/executeQuery', async (req, res) => {
     );
   });
 });
+
+function findParams(searchParam) {
+  findParam = {};
+
+  for (key in searchParam) {
+    if (searchParam.hasOwnProperty(key)) {
+      findParam[key] = {
+        '$regex': `${searchParam[key]}`,
+        '$options': 'i'
+      }
+    }
+  }
+
+  return findParam;
+}
+
+function renameField(json, field) {
+  json[renameField] = json.name;
+  delete json[renameField];
+
+  return json;
+}
 
 function locType(toolMode) {
   if (toolMode === 'near') {

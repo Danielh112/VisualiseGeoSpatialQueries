@@ -341,6 +341,10 @@ function markerExists(mode) {
   }
 }
 
+function findDocuments() {
+
+}
+
 function drawMarker(button) {
   if (!markerExists('manual')) {
     button.addClass('btn-default-clicked');
