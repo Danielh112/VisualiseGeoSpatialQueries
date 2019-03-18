@@ -2,6 +2,10 @@
 let selectedRow;
 let selectedCollection;
 
+/* Selected Attribute*/
+let selectedAttribute;
+let selectedAttributeRow;
+
 /* Transition in progress */
 let animating = false;
 
@@ -14,7 +18,7 @@ $(document).ready(function() {
     nextTab($(this).closest('fieldset'));
   });
 
-  $(document).on('keydown', '.form-input-empty', function (e) {
+  $(document).on('keydown', '.form-input-empty', function(e) {
     $(this).removeClass('form-input-empty');
   });
 
@@ -26,16 +30,29 @@ $(document).ready(function() {
     retrieveCollectionList();
   });
 
-  $(document).on('hide.bs.modal','#conn-successful-modal', function () {
+  $(document).on('hide.bs.modal', '#conn-successful-modal', function() {
     nextTab($(this).closest('fieldset'));
     retrieveCollectionList();
-});
+  });
 
-  $('.displayMap').click(function() {
+  $('#no-geospatial-index').click(function() {
+    showMap();
+  });
+
+  $('#create-geospatial-index-btn').click(function() {
+    createGeospatialIndexModal();
+  });
+
+  $('#create-geospatial-index').click(function() {
+    if (!$(this).hasClass('btn-default-disabled')) {
+      createGeospatialIndex();
+    }
+  });
+
+  $('.display-map').click(function() {
     /* Only used in development environment,
     session storage not to be used in production */
     storeLoginCredentials();
-
     displayMap();
   });
 
@@ -48,8 +65,20 @@ $(document).ready(function() {
   /* Hightlight selected Collection */
   $('#collection-list').on('click', 'tbody tr', function() {
     const row = $(this).closest('tr');
-    const collectionnames = row.find('td:nth-child(2)');
-    toggleCollectionSelection(row, collectionnames);
+    const collectionNames = row.find('td:nth-child(2)');
+    toggleCollectionSelection(row, collectionNames);
+  });
+
+  /* Hightlight selected Collection */
+  $('#attribute-list').on('click', 'tbody tr', function() {
+    const row = $(this).closest('tr');
+    const attributeNames = row.find('td:nth-child(2)');
+    toggleAttributeSelection(row, attributeNames);
+  });
+
+  $('.close').click(function(event) {
+      event.preventDefault();
+      $(this).parent().addClass('hidden');
   });
 });
 
@@ -118,7 +147,7 @@ function testConnection() {
   if (!connetionTest) {
     connetionTest = true;
 
-    showLoading('.test-connection');
+    showLoadingBtn('.test-connection');
 
     const url = $('#hostname').val() + ':' + $('#port ').val();
     const username = $('#username').val();
@@ -136,16 +165,16 @@ function testConnection() {
       },
       dataType: 'json',
       success: function(response) {
-        $('#conn-successful-modal').modal('toggle');
+        displayModal('#conn-successful-modal');
         connetionTest = false;
-        hideLoading('.test-connection', 'Test Connection');
+        hideLoadingBtn('.test-connection', 'Test Connection');
       },
       error: function(err) {
         const errMsg = $.parseJSON(err.responseText);
         $('#conn-unsuccessful-content').html(errMsg['error']['message']);
-        $('#conn-unsuccessful-modal').modal('toggle');
+        displayModal('#conn-unsuccessful-modal');
         connetionTest = false;
-        hideLoading('.test-connection', 'Test Connection');
+        hideLoadingBtn('.test-connection', 'Test Connection');
       }
     });
   }
@@ -157,7 +186,7 @@ associated with users DB
 */
 
 function retrieveCollectionList() {
-
+  
   const url = $('#hostname').val() + ':' + $('#port ').val();
   const username = $('#username').val();
   const password = $('#password').val();
@@ -218,6 +247,35 @@ function toggleCollectionSelection(row, collectionNames) {
   }
 }
 
+function toggleAttributeSelection(row, attributeNames) {
+  attribute = row[0].innerText;
+
+  /* No Class selected */
+  if (selectedAttribute === undefined) {
+    row.addClass('selected');
+    selectedAttribute = attribute;
+    selectedAttributeRow = row;
+    $('#create-geospatial-index').removeClass('btn-default-disabled');
+    /* Class already selected */
+  } else if (selectedAttribute === attribute) {
+    row.removeClass('selected');
+    selectedAttribute = undefined;
+    selectedAttributeRow = undefined;
+    $('#create-geospatial-index').addClass('btn-default-disabled');
+    /* Selected New collection */
+  } else {
+    selectedAttributeRow.removeClass('selected');
+    row.addClass('selected');
+    selectedAttribute = attribute;
+    selectedAttributeRow = row;
+    $('#create-geospatial-index').removeClass('btn-default-disabled');
+  }
+}
+
+function displayModal(modalId) {
+  $(modalId).modal('toggle');
+}
+
 /* Only used in development environment,
 session storage should not to be used in production */
 function storeLoginCredentials() {
@@ -228,19 +286,144 @@ function storeLoginCredentials() {
   sessionStorage.setItem('collection', selectedCollection);
 }
 
-function showLoading(cssClass) {
+function showLoadingBtn(cssClass) {
   $(cssClass).val('');
   $(cssClass).removeClass('btn-default-hover');
   $(cssClass).css('background-image', 'url(../images/loading.gif)');
 }
 
-function hideLoading(cssClass, val) {
+function hideLoadingBtn(cssClass, val) {
   $(cssClass).val(val);
   $(cssClass).addClass('btn-default-hover');
   $(cssClass).css('background-image', '');
 }
 
-function displayMap() {
+function showLoading(cssClass) {
+  $(cssClass).css('background-image', 'url(../images/loading.gif)');
+}
+
+function hideLoading(cssClass, val) {
+  $(cssClass).css('background-image', '');
+}
+
+function hideLoadingBtn(cssClass, val) {
+  $(cssClass).val(val);
+  $(cssClass).addClass('btn-default-hover');
+  $(cssClass).css('background-image', '');
+}
+
+function validateGeospatialIndex() {
+  let url = sessionStorage.getItem('url');
+  let username = sessionStorage.getItem('username');
+  let password = sessionStorage.getItem('password');
+  let database = sessionStorage.getItem('database');
+  let collection = sessionStorage.getItem('collection');
+
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: 'http://localhost:3000/api/mongoDB/collection/index/geospatial',
+      type: 'get',
+      data: {
+        url: encodeURIComponent(url),
+        username: username,
+        password: password,
+        database: database,
+        collection: collection
+      },
+      dataType: 'json',
+      success: function(response) {
+        resolve(response);
+      },
+      error: function(err) {
+        //TODO display error in UI
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+}
+
+async function createGeospatialIndexModal() {
+  displayModal('#no-geospatial-index-modal');
+  displayModal('#create-geospatial-index-modal');
+
+  attributes = await populateAttributes();
+}
+
+function populateAttributes() {
+  let url = sessionStorage.getItem('url');
+  let username = sessionStorage.getItem('username');
+  let password = sessionStorage.getItem('password');
+  let database = sessionStorage.getItem('database');
+  let collection = sessionStorage.getItem('collection');
+
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: 'http://localhost:3000/api/mongoDB/collection/attributes',
+      type: 'get',
+      data: {
+        url: encodeURIComponent(url),
+        username: username,
+        password: password,
+        database: database,
+        collection: collection
+      },
+      dataType: 'json',
+      success: function(response) {
+        $.each(response, function(i, item) {
+          $('#collection-list-attributes').append('<tr><td class="row-id">' + item + '</td></tr>');
+        });
+      },
+      error: function(err) {
+        reject(err);
+      }
+    });
+  });
+}
+
+function createGeospatialIndex() {
+  let url = sessionStorage.getItem('url');
+  let username = sessionStorage.getItem('username');
+  let password = sessionStorage.getItem('password');
+  let database = sessionStorage.getItem('database');
+  let collection = sessionStorage.getItem('collection');
+
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: 'http://localhost:3000/api/mongoDB/collection/index/geospatial',
+      type: 'post',
+      data: jQuery.param({
+        url: encodeURIComponent(url),
+        username: username,
+        password: password,
+        database: database,
+        collection: collection,
+        attribute: selectedAttribute,
+      }),
+      dataType: 'json',
+      success: function(response) {
+        showMap();
+      },
+      error: function(err) {
+        $('#no-geospatial-data-modal > div').html(`<strong>Error</strong>: <br> ${err.responseJSON.error.message.slice(0,80)}...`);
+        $('#no-geospatial-data-modal').removeClass('hidden');
+        $('#no-geospatial-data-modal').show();
+        $('#create-geospatial-index').addClass('btn-default-disabled');
+      }
+    });
+  });
+}
+
+async function displayMap() {
+  geospatialindex = await validateGeospatialIndex();
+  if (geospatialindex['spatialIndex'] !== 'Not Found') {
+    showMap();
+  } else {
+    displayModal('#no-geospatial-index-modal');
+  }
+}
+
+function showMap() {
   //TODO Hard coded change
   window.location.href = 'http://localhost:3000/map';
 }

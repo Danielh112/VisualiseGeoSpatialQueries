@@ -96,7 +96,7 @@ $(document).ready(function() {
   $(".find-documents").autocomplete({
     source: function(request, response) {
       $.when(
-        findDocuments($(this)[0].term)
+        findDocuments({name: $(this)[0].term})
       ).then(function(suggestions) {
         response(suggestions);
       })
@@ -175,10 +175,10 @@ function togglePanel(panel) {
 /* Change Tab (Tools/Filters) */
 function changeTab(tab) {
   var tabId = $(tab).attr('id');
-  prevTab = $(tab).parent().find('.active');
+  selPrevTab = $(tab).parent().find('.active');
 
-  prevTab.removeClass('active');
-  $('#' + prevTab.attr('id') + '-container').hide();
+  selPrevTab.removeClass('active');
+  $('#' + selPrevTab.attr('id') + '-container').hide();
 
   $(tab).addClass('active');
   $('#' + tabId + '-container').removeClass('hidden');
@@ -341,6 +341,10 @@ function markerExists(mode) {
   }
 }
 
+function findDocuments() {
+
+}
+
 function drawMarker(button) {
   if (!markerExists('manual')) {
     button.addClass('btn-default-clicked');
@@ -360,6 +364,12 @@ function autoDrawMarker(shape) {
     var markerBounds = L.latLngBounds(latLngs);
     map.fitBounds(markerBounds);
 
+    $('#drawPoint').addClass('btn-default-clicked');
+    $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
+
+    const generatedQuery = queryBuilder(near.geo.geometry.geometry);
+    queryOutput(generatedQuery);
+
   } else {
     near.nextShape = shape;
   }
@@ -377,6 +387,10 @@ function markerDrawn(marker) {
   near.markerDrawn = true;
   near.marker = marker.layer;
   near.geo.geometry = marker.layer.toGeoJSON();
+  $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
+
+  const generatedQuery = queryBuilder(near.geo.geometry.geometry);
+  queryOutput(generatedQuery);
 }
 
 function polygonDrawn(polygon) {
@@ -471,7 +485,7 @@ function maxDistCircle(distance) {
     }
     near.distance.maxDistShape = L.circle(coordinates, parseInt(distance, 10)).addTo(map);
 
-    const generatedQuery = queryBuilder(near.geo.geometry, distance, near.distance.minDistance);
+    const generatedQuery = queryBuilder(near.geo.geometry.geometry, distance, near.distance.minDistance);
     queryOutput(generatedQuery);
     geoJSONLayer.bringToFront();
   }
@@ -501,7 +515,7 @@ function minDistCircle(distance) {
       opacity: 1.0
     }).addTo(map);
 
-    const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance, distance);
+    const generatedQuery = queryBuilder(near.geo.geometry.geometry, near.distance.maxDistance, distance);
     queryOutput(generatedQuery);
     geoJSONLayer.bringToFront();
   }
@@ -513,7 +527,7 @@ function nearSphereToggle(toggle) {
   } else {
     toolMode = 'near';
   }
-  const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance,
+  const generatedQuery = queryBuilder(near.geo.geometry.geometry, near.distance.maxDistance,
     near.distance.minDistance);
   queryOutput(generatedQuery);
 }
@@ -564,14 +578,16 @@ function drawPolygon(shape) {
   currentDrawTool.enable();
 }
 
-function queryOutput(generateQuery) {
-  generateQuery.then(function(query) {
+function queryOutput(GenerateQuery) {
+  GenerateQuery.then(function(query) {
     $('#generatedQuery').text(query.trim());
     $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
+
+    executeQuery(query.trim());
   });
 }
 
-function findDocuments(searchParam) {
+function findDocuments(searchParam, mode) {
   let url = sessionStorage.getItem('url');
   let username = sessionStorage.getItem('username');
   let password = sessionStorage.getItem('password');
@@ -588,8 +604,10 @@ function findDocuments(searchParam) {
         password: password,
         database: database,
         collection: collection,
+        mode: mode,
         searchParam: searchParam,
         toolMode: toolMode,
+
         limit: 3
       },
       success: function(response) {
@@ -615,6 +633,7 @@ function findDocuments(searchParam) {
 function queryBuilder(geoJson, maxDistance, minDistance) {
 
   let collection = sessionStorage.getItem('collection');
+  let filters = sessionStorage.getItem('filterCollection');
 
   return new Promise((resolve, reject) => {
     $.ajax({
@@ -624,6 +643,7 @@ function queryBuilder(geoJson, maxDistance, minDistance) {
         collection: collection,
         queryType: toolMode,
         geometry: geoJson,
+        filters: filters,
         maxDistance: maxDistance,
         minDistance: minDistance
       },

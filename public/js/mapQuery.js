@@ -1,13 +1,5 @@
-$(function() {
-  $('.execute-query').click(function(event) {
-    executeQuery();
-  });
-});
+function executeQuery(queryValue) {
 
-
-function executeQuery() {
-
-  let queryValue = $('#generatedQuery').text();
   if (queryValue !== '') {
     let url = sessionStorage.getItem('url');
     let username = sessionStorage.getItem('username');
@@ -17,6 +9,8 @@ function executeQuery() {
 
     let generatedQuery = queryValue.substring(queryValue.indexOf('(') + 1, queryValue.indexOf(")"));
     let filterCollection = sessionStorage.getItem('filterCollection');
+
+    const queryLimit = 5;
 
     return new Promise((resolve, reject) => {
       $.ajax({
@@ -30,16 +24,14 @@ function executeQuery() {
           collection: collection,
           query: generatedQuery,
           filterCollection: filterCollection,
-          limit: 5
+          limit: queryLimit
         },
         dataType: 'json',
         success: function(response) {
           displayQueryResults(response);
         },
         error: function(err) {
-          //TODO display error in UI
-          console.log(err);
-          reject(err);
+          displayQueryResults(err.responseJSON.errmsg);
         }
       });
     });
@@ -50,10 +42,14 @@ function executeQuery() {
 function displayQueryResults(results) {
   $('#execute-query-container').html('');
 
-  results.forEach(function(record) {
-    recordStr = JSON.stringify(record);
-    if (results !== '') {
-      $('#execute-query-container').append(`<li> ${recordStr} </li>`);
-    }
-  });
+  if (typeof results !== 'string') {
+    results.forEach(function(record) {
+      recordStr = JSON.stringify(record);
+      if (results !== '') {
+        $('#execute-query-container').append(`<li> ${recordStr} </li>`);
+      }
+    });
+  } else {
+    $('#execute-query-container').append(`<li> ${results} </li>`);
+  }
 }

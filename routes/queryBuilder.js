@@ -6,12 +6,20 @@ router.get('/', async (req, res, next) => {
   let query = '';
   const queryType = req.query.queryType;
 
+
   if (queryType === 'near' || queryType === 'nearSphere') {
     query = nearQuery(req, next);
   }
 
+  /* If the geospatial object does not contain properties
+  it means we are searching within/interesecting a spatial polygon */
+
   if (queryType === 'geoIntersects' || queryType === 'geoWithin') {
-    query = spatialQuery(req, next);
+    if (req.query.geometry.properties == undefined) {
+      query = spatialObjectQuery(req, next);
+    } else {
+      query = centerSphereQuery(req, next);
+    }
   }
 
   var response = {
@@ -25,6 +33,7 @@ function nearQuery(req) {
 
   const collection = req.query.collection;
   const queryType = req.query.queryType;
+  const filters = filtersExpr(req.query.filters);
   const coordinates = req.query.geometry.coordinates;
   const maxDistance = maxDistanceExpr(req.query.maxDistance);
   const minDistance = minDistanceExpr(req.query.minDistance);
@@ -39,9 +48,18 @@ function nearQuery(req) {
               ${maxDistance}
               ${minDistance}
             }
-         }
-     }
+         } ${filters}
+    }
    )`;
+}
+
+function filtersExpr(filters) {
+  if (filters === undefined || filters != ' ') {
+    return '';
+  } else {
+
+    return `,${filters.replace('{','').replace('}','')}`;
+  }
 }
 
 function maxDistanceExpr(distance) {
@@ -61,13 +79,12 @@ function minDistanceExpr(distance) {
 }
 
 
-function spatialQuery(req) {
+function spatialObjectQuery(req) {
 
   const collection = req.query.collection;
   const queryType = req.query.queryType;
   const coordinates = coordinateExpr(req.query.geometry.geometry.coordinates);
-
-  console.log(coordinates);
+  const filters = filtersExpr(req.query.filters);
 
   return `
   db.${collection}.find(
@@ -77,7 +94,28 @@ function spatialQuery(req) {
             {
               "$geometry": { "type": "Polygon", "coordinates": ${coordinates} }
             }
-         }
+         } ${filters}
+     }
+   )`;
+}
+
+function centerSphereQuery(req) {
+
+  const collection = req.query.collection;
+  const queryType = req.query.queryType;
+  const coordinates = coordinateExpr(req.query.geometry.geometry.coordinates);
+  const properties = req.query.geometry.properties;
+  const filters = filtersExpr(req.query.filters);
+
+  return `
+  db.${collection}.find(
+    {
+       "location":
+         { "$${queryType}" :
+            {
+              "$centerSphere": [ ${coordinates} , ${properties.radius} ]
+            }
+         } ${filters}
      }
    )`;
 }
