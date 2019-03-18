@@ -175,10 +175,10 @@ function togglePanel(panel) {
 /* Change Tab (Tools/Filters) */
 function changeTab(tab) {
   var tabId = $(tab).attr('id');
-  prevTab = $(tab).parent().find('.active');
+  selPrevTab = $(tab).parent().find('.active');
 
-  prevTab.removeClass('active');
-  $('#' + prevTab.attr('id') + '-container').hide();
+  selPrevTab.removeClass('active');
+  $('#' + selPrevTab.attr('id') + '-container').hide();
 
   $(tab).addClass('active');
   $('#' + tabId + '-container').removeClass('hidden');

@@ -643,6 +643,10 @@ div.tooltip {
   width: 100%;
 }
 
+#execute-query-container > li {
+  list-style-type: none;
+}
+
 .tab {
   z-index: 2
 }
@@ -878,6 +882,10 @@ input[type=checkbox].panel-checkbox {
   padding: 10px !important;
 }
 
+.padding-left-sm {
+  padding-left: 10px !important;
+}
+
 .padding-top-sm {
   padding-top: 10px !important;
 }
@@ -896,6 +904,10 @@ input[type=checkbox].panel-checkbox {
 
 .padding-left-md {
   padding-left: 15px !important;
+}
+
+.padding-left-lg {
+  padding-left: 35px !important;
 }
 
 .padding-right-md {

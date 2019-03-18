@@ -28,12 +28,10 @@ function executeQuery(queryValue) {
         },
         dataType: 'json',
         success: function(response) {
-          displayQueryResults(response, queryLimit);
+          displayQueryResults(response);
         },
         error: function(err) {
-          //TODO display error in UI
-          console.log(err);
-          reject(err);
+          displayQueryResults(err.responseJSON.errmsg);
         }
       });
     });
@@ -44,10 +42,14 @@ function executeQuery(queryValue) {
 function displayQueryResults(results) {
   $('#execute-query-container').html('');
 
-  results.forEach(function(record) {
-    recordStr = JSON.stringify(record);
-    if (results !== '') {
-      $('#execute-query-container').append(`<li> ${recordStr} </li>`);
-    }
-  });
+  if (typeof results !== 'string') {
+    results.forEach(function(record) {
+      recordStr = JSON.stringify(record);
+      if (results !== '') {
+        $('#execute-query-container').append(`<li> ${recordStr} </li>`);
+      }
+    });
+  } else {
+    $('#execute-query-container').append(`<li> ${results} </li>`);
+  }
 }

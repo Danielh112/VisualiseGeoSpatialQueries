@@ -206,10 +206,11 @@ async function mapDetails(mapDetails) {
 
   $('#collectionInfo').text(`Collection: ${collection}`);
   if (mapDetails.features) {
-    $('#collectionGeospatialSize').text(`Displaying ${totalGeospatialObjects} Geospatial Objects of ${collectionSize.documentCount} Documents`);
+    $('#collectionGeospatialSize > span:first-of-type').text(`Displaying ${totalGeospatialObjects} Geospatial Objects of ${collectionSize.documentCount} Documents`);
   } else {
-    $('#collectionGeospatialSize').text(`Displaying 0 Geospatial Objects.`);
+    $('#collectionGeospatialSize > span:first-of-type').text(`Displaying 0 Geospatial Objects.`);
   }
+  $('#collectionGeospatialSize').removeClass('hidden');
 }
 
 /* On node mouse over

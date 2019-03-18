@@ -35,11 +35,6 @@ $(document).ready(function() {
     retrieveCollectionList();
   });
 
-  $(document).on('hide.bs.modal', '#conn-successful-modal', function() {
-    nextTab($(this).closest('fieldset'));
-    retrieveCollectionList();
-  });
-
   $('#no-geospatial-index').click(function() {
     showMap();
   });
@@ -152,7 +147,7 @@ function testConnection() {
   if (!connetionTest) {
     connetionTest = true;
 
-    showLoading('.test-connection');
+    showLoadingBtn('.test-connection');
 
     const url = $('#hostname').val() + ':' + $('#port ').val();
     const username = $('#username').val();
@@ -172,14 +167,14 @@ function testConnection() {
       success: function(response) {
         displayModal('#conn-successful-modal');
         connetionTest = false;
-        hideLoading('.test-connection', 'Test Connection');
+        hideLoadingBtn('.test-connection', 'Test Connection');
       },
       error: function(err) {
         const errMsg = $.parseJSON(err.responseText);
         $('#conn-unsuccessful-content').html(errMsg['error']['message']);
         displayModal('#conn-unsuccessful-modal');
         connetionTest = false;
-        hideLoading('.test-connection', 'Test Connection');
+        hideLoadingBtn('.test-connection', 'Test Connection');
       }
     });
   }
@@ -191,7 +186,7 @@ associated with users DB
 */
 
 function retrieveCollectionList() {
-
+  
   const url = $('#hostname').val() + ':' + $('#port ').val();
   const username = $('#username').val();
   const password = $('#password').val();
@@ -291,13 +286,27 @@ function storeLoginCredentials() {
   sessionStorage.setItem('collection', selectedCollection);
 }
 
-function showLoading(cssClass) {
+function showLoadingBtn(cssClass) {
   $(cssClass).val('');
   $(cssClass).removeClass('btn-default-hover');
   $(cssClass).css('background-image', 'url(../images/loading.gif)');
 }
 
+function hideLoadingBtn(cssClass, val) {
+  $(cssClass).val(val);
+  $(cssClass).addClass('btn-default-hover');
+  $(cssClass).css('background-image', '');
+}
+
+function showLoading(cssClass) {
+  $(cssClass).css('background-image', 'url(../images/loading.gif)');
+}
+
 function hideLoading(cssClass, val) {
+  $(cssClass).css('background-image', '');
+}
+
+function hideLoadingBtn(cssClass, val) {
   $(cssClass).val(val);
   $(cssClass).addClass('btn-default-hover');
   $(cssClass).css('background-image', '');

@@ -62,10 +62,15 @@ router.get('/executeQuery', async (req, res) => {
   const limit = parseInt(req.query.limit);
 
   db.collection(collection).find(query).limit(limit).toArray(function(err, result) {
-    if (err) throw err;
-    res.status(200).send(
-      result
-    );
+    if (err) {
+      res.status(400).send(
+        err
+      );
+    } else {
+      res.status(200).send(
+        result
+      );  
+    }
   });
 });
 
