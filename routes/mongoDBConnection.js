@@ -6,7 +6,7 @@ const config = require('../config/config');
 const map = config.defaultMapConnection;
 
 router.get('/testConnection', async (req, res, next) => {
-  const client = await establishConn(req);
+  const client = await establishConn(req.query);
   const db = client.db(req.query.database);
 
   db.listCollections().toArray(function(err, collections) {
@@ -24,65 +24,8 @@ router.get('/testConnection', async (req, res, next) => {
   });
 });
 
-router.get('/collection', async (req, res) => {
-  const client = await establishConn(req);
-  const db = client.db(req.query.database);
-  db.listCollections().toArray(function(err, collections) {
-    if (err) throw err;
-    res.status(200).send(
-      collections
-    );
-  });
-});
-
-router.get('/collection/attributes', async (req, res) => {
-  let collection = req.query.collection;
-
-  const client = await establishConn(req);
-  const db = client.db(req.query.database);
-
-  var result = db.collection(collection).aggregate([{
-      '$project': {
-        'arrayofkeyvalue': {
-          '$objectToArray': '$$ROOT'
-        }
-      }
-    },
-    {
-      '$unwind': '$arrayofkeyvalue'
-    },
-    {
-      '$group': {
-        '_id': null,
-        'allkeys': {
-          '$addToSet': '$arrayofkeyvalue.k'
-        }
-      }
-    }
-  ]).toArray(function(err, result) {
-    res.status(200).send(
-      result[0].allkeys
-    );
-  });
-});
-
-router.get('/collection/size', async (req, res) => {
-  let collection = req.query.collection;
-
-  const client = await establishConn(req);
-  const db = client.db(req.query.database);
-
-  db.collection(collection).estimatedDocumentCount({}, function(err, result) {
-    if (err) throw err;
-    console.log(result);
-    res.status(200).send({
-      'documentCount': result
-    });
-  });
-});
-
 router.get('/findDocuments', async (req, res) => {
-  const client = await establishConn(req);
+  const client = await establishConn(req.query);
   const db = client.db(req.query.database);
   const collection = req.query.collection;
 
@@ -111,11 +54,11 @@ router.get('/findDocuments', async (req, res) => {
 });
 
 router.get('/executeQuery', async (req, res) => {
-  const client = await establishConn(req);
+  const client = await establishConn(req.query);
   const db = client.db(req.query.database);
   const collection = req.query.collection;
-
   const query = JSON.parse(req.query.query);
+
   const limit = parseInt(req.query.limit);
 
   db.collection(collection).find(query).limit(limit).toArray(function(err, result) {
@@ -158,10 +101,10 @@ function locType(toolMode) {
 
 function establishConn(req) {
 
-  let url = req.query.url;
-  let username = req.query.username;
-  let password = req.query.password;
-  let database = req.query.database;
+  let url = req.url;
+  let username = req.username;
+  let password = req.password;
+  let database = req.database;
 
   /*  Auth or no Auth */
   if (username & password) {
@@ -178,7 +121,7 @@ function establishConn(req) {
       if (err) {
         reject(err);
       } else {
-        console.log('connected to ' + req.query.url);
+        console.log('connected to ' + req.url);
         resolve(client);
       }
     })

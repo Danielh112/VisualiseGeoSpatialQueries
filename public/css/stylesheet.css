@@ -105,11 +105,11 @@ input[type=number]::-webkit-outer-spin-button {
   padding-bottom: 20px;
 }
 
-.conn-modal .modal-content {
+.sm-modal .modal-content, .md-modal .modal-content {
   width: 100%;
 }
 
-.conn-modal .modal-dialog-centered {
+.sm-modal .modal-dialog-centered, .md-modal .modal-dialog-centered{
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -119,19 +119,35 @@ input[type=number]::-webkit-outer-spin-button {
   min-height: calc(90% - (.5rem * 2));
 }
 
+.sm-modal .modal-body, .md-modal .modal-body {
+  background-color: #f9f9f9;
+  margin-left: 1px;
+}
+
 @media (min-width: 576px) {
-  .conn-modal .modal-dialog-centered {
+  .sm-modal .modal-dialog-centered, .md-modal .modal-dialog-centered {
     min-height: calc(90% - (1.75rem * 2));
   }
 }
 
 @media (min-width: 768px) {
-  .conn-modal .modal-dialog {
+  .sm-modal .modal-dialog {
     width: 300px;
+    padding-bottom: 180px;
+  }
+
+  .md-modal .modal-dialog {
+    padding-bottom: 180px;
   }
 }
 
-.conn-modal-title {
+.modal-body {
+  height: 225px;
+  max-height: 225px;
+  overflow: auto;
+}
+
+.modal-title {
   vertical-align: middle;
   padding: 24px 0px 24px 0px;
   font-size: 24px;
@@ -535,6 +551,10 @@ div.tooltip {
 
 .no-padding {
   padding: 0px !important;
+}
+
+.no-padding-top {
+  padding-top: 0px !important;
 }
 
 .no-margin {

@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
   let collection = req.query.collection;
   let filters = filterBuilder(req.query.filterCollection);
 
-  const client = await mongoDBConnection.establishConn(req);
+  const client = await mongoDBConnection.establishConn(req.query);
   const db = client.db(req.query.database);
   db.collection(collection).find(filters).limit(config.mapLimit).toArray(function(err, result) {
     if (err) throw err;

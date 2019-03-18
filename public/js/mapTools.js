@@ -485,7 +485,7 @@ function maxDistCircle(distance) {
     }
     near.distance.maxDistShape = L.circle(coordinates, parseInt(distance, 10)).addTo(map);
 
-    const generatedQuery = queryBuilder(near.geo.geometry, distance, near.distance.minDistance);
+    const generatedQuery = queryBuilder(near.geo.geometry.geometry, distance, near.distance.minDistance);
     queryOutput(generatedQuery);
     geoJSONLayer.bringToFront();
   }
@@ -515,7 +515,7 @@ function minDistCircle(distance) {
       opacity: 1.0
     }).addTo(map);
 
-    const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance, distance);
+    const generatedQuery = queryBuilder(near.geo.geometry.geometry, near.distance.maxDistance, distance);
     queryOutput(generatedQuery);
     geoJSONLayer.bringToFront();
   }
@@ -527,7 +527,7 @@ function nearSphereToggle(toggle) {
   } else {
     toolMode = 'near';
   }
-  const generatedQuery = queryBuilder(near.geo.geometry, near.distance.maxDistance,
+  const generatedQuery = queryBuilder(near.geo.geometry.geometry, near.distance.maxDistance,
     near.distance.minDistance);
   queryOutput(generatedQuery);
 }
@@ -633,6 +633,7 @@ function findDocuments(searchParam, mode) {
 function queryBuilder(geoJson, maxDistance, minDistance) {
 
   let collection = sessionStorage.getItem('collection');
+  let filters = sessionStorage.getItem('filterCollection');
 
   return new Promise((resolve, reject) => {
     $.ajax({
@@ -642,6 +643,7 @@ function queryBuilder(geoJson, maxDistance, minDistance) {
         collection: collection,
         queryType: toolMode,
         geometry: geoJson,
+        filters: filters,
         maxDistance: maxDistance,
         minDistance: minDistance
       },
