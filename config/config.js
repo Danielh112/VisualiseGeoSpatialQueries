@@ -6,8 +6,6 @@ config.defaultMapConnection = {
   collection: 'geodb'
 }
 
-config.geospatialContents = ['loc', 'location', ''];
-
 config.mapLimit = 1000;
 
 module.exports = config;

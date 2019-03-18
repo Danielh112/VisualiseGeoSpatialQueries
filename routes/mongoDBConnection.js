@@ -39,7 +39,7 @@ router.get('/findDocuments', async (req, res) => {
   }
 
   db.collection(collection).find(findParam).limit(limit).toArray(function(err, result) {
-    newResult = '';
+    let newResult = [];
 
     if (err) throw err;
     if (result.length === 0) {

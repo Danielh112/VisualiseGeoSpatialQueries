@@ -54,7 +54,7 @@ function nearQuery(req) {
 }
 
 function filtersExpr(filters) {
-  if (filters === undefined || filters != '') {
+  if (filters === undefined || filters != ' ') {
     return '';
   } else {
 
