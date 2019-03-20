@@ -13,16 +13,34 @@ const locLabels = ['loc', 'location', 'Loc', 'Location'];
 router.get('/', async (req, res) => {
   let collection = req.query.collection;
   let filters = filterBuilder(req.query.filterCollection);
+  let mapBounds = mapBoundsBuilder(req.query.mapBounds);
 
   const client = await mongoDBConnection.establishConn(req.query);
   const db = client.db(req.query.database);
-  db.collection(collection).find(filters).limit(config.mapLimit).toArray(function(err, result) {
+  db.collection(collection).find(mapBounds).limit(config.mapLimit).toArray(function(err, result) {
     if (err) throw err;
     res.status(200).send(
       parseJson(result)
     );
   });
 });
+
+function mapBoundsBuilder(mapBounds) {
+  if (mapBounds === undefined || mapBounds === '') {
+    return '';
+  }
+
+  mapBounds = JSON.stringify(mapBounds).replace(/['"]+/g, '');
+
+    return JSON.parse(`{
+       "location":
+         { "$geoWithin":
+            {
+              "$geometry": { "type": "Polygon", "coordinates": ${mapBounds} }
+            }
+         }
+     }`);
+}
 
 function filterBuilder(filters) {
   let filterList = {};
@@ -32,7 +50,10 @@ function filterBuilder(filters) {
   }
 
   Object.entries(JSON.parse(filters)).map(([key, value]) => {
-    filterList[key] = {'$regex': value, '$options': 'i'};
+    filterList[key] = {
+      '$regex': value,
+      '$options': 'i'
+    };
   })
   return filterList;
 }
