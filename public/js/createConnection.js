@@ -36,6 +36,7 @@ $(document).ready(function() {
   });
 
   $('#no-geospatial-index').click(function() {
+    sessionStorage.setItem('geospatialIndex', false);
     showMap();
   });
 
@@ -54,6 +55,7 @@ $(document).ready(function() {
     session storage not to be used in production */
     storeLoginCredentials();
     displayMap();
+    sessionStorage.setItem('geospatialIndex', true);
   });
 
   /* Authentication: Set dropdown Text */
@@ -186,7 +188,7 @@ associated with users DB
 */
 
 function retrieveCollectionList() {
-  
+
   const url = $('#hostname').val() + ':' + $('#port ').val();
   const username = $('#username').val();
   const password = $('#password').val();

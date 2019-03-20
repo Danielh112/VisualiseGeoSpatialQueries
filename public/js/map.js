@@ -1,7 +1,10 @@
 let map;
+let currentMapData;
+
 let drawnItems;
 let drawControl;
 let mapLoading = true;
+let zoomed = false;
 
 const geojsonMarkers = {
   radius: 8,
@@ -15,7 +18,6 @@ const geojsonMarkers = {
 
 $(function() {
   initialise();
-
 });
 
 async function initialise() {
@@ -33,16 +35,16 @@ async function initialise() {
   }
 }
 
-async function redrawMap() {
-  contentLoading();
-  clearMapData();
-  mapData = await retrieveData();
-  geoJSONLayer = appendGeoJson(map, mapData);
-  mapDetails(mapData);
-  if (mapData.features !== undefined) {
-    centerMap(map, geoJSONLayer);
+async function redrawMap(recenterMap, mapBounds) {
+  mapData = await retrieveData(mapBounds);
+  if (!_.isEqual(currentMapData, mapData)) {
+    clearMapData();
+    geoJSONLayer = appendGeoJson(map, mapData);
+    mapDetails(mapData);
+    if (mapData.features !== undefined && recenterMap) {
+      centerMap(map, geoJSONLayer);
+    }
   }
-  showContent();
 }
 
 function connectionExists() {
@@ -80,7 +82,7 @@ function createMap() {
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGFuaWVsaDExMiIsImEiOiJjanJ4ZjFmM24wa3JtNDludmxlYzhndmoxIn0._VvtW1VgcpUNRqFchxOl7A', {
     attribution: 'MapgenerateSelectionWindow data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
-    minZoom: 1,
+    minZoom: 2,
     noWrap: false,
     id: 'mapbox.streets',
     accessToken: 'your.mapbox.access.token'
@@ -134,13 +136,20 @@ Retrieve data from /map API
         live implementation.
 */
 
-function retrieveData() {
+function retrieveData(mapBounds) {
   let url = sessionStorage.getItem('url');
   let username = sessionStorage.getItem('username');
   let password = sessionStorage.getItem('password');
   let database = sessionStorage.getItem('database');
   let collection = sessionStorage.getItem('collection');
   let filterCollection = sessionStorage.getItem('filterCollection');
+
+  let mapCoordinates;
+
+  if (mapBounds !== undefined) {
+    mapCoordinates = mapCoordinatesBuilder(mapBounds);
+    //L.rectangle(mapCoordinates, {color: "#ff7800", weight: 1}).addTo(map);
+  }
 
   return new Promise((resolve, reject) => {
     $.ajax({
@@ -152,7 +161,8 @@ function retrieveData() {
         password: password,
         database: database,
         collection: collection,
-        filterCollection: filterCollection
+        filterCollection: filterCollection,
+        mapBounds: mapCoordinates
       },
       dataType: 'json',
       success: function(response) {
@@ -167,8 +177,33 @@ function retrieveData() {
   });
 }
 
+function latLimit(val) {
+  return val < -90.0 ? -90.0 : (val > 90.0 ? 90.0 : val);
+}
+
+function lngLimit(val) {
+  return val < -180.0 ? -179.9 : (val > 180.0 ? 179.9 : val);
+}
+
+function mapCoordinatesBuilder(mapBounds) {
+  const sw = mapBounds.getSouthWest();
+  const ne = mapBounds.getNorthEast();
+
+  return [
+    [
+      [lngLimit(sw.lng), latLimit(sw.lat)],
+      [lngLimit(sw.lng), latLimit(ne.lat)],
+      [lngLimit(ne.lng), latLimit(ne.lat)],
+      [lngLimit(ne.lng), latLimit(sw.lat)],
+      [lngLimit(sw.lng), latLimit(sw.lat)]
+    ]
+  ];
+
+}
+
 /* Append Geojson to map */
 function appendGeoJson(map, mapData) {
+  currentMapData = mapData;
   return geoJson = L.geoJSON(mapData, {
       onEachFeature: tipMouseOver,
       pointToLayer: function(feature, latlng) {
@@ -256,7 +291,23 @@ function initialiseMapTools() {
   map.addControl(drawControl);
 }
 
+function zoomedMap() {
+  if (!mapLoading && map.getZoom() >= 4) {
+    redrawMap(false, map.getBounds());
+    zoomed = true;
+  } else if (!mapLoading && zoomed) {
+    redrawMap(false);
+  }
+}
+
 $(function() {
+  map.on('moveend', function() {
+    const geospatialIndex = sessionStorage.getItem('geospatialIndex');
+    if (geospatialIndex === "true") {
+      zoomedMap();
+    }
+  });
+
   map.on('draw:created', function(e) {
     const type = e.layerType,
       layer = e.layer;

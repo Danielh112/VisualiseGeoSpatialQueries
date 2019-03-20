@@ -30,7 +30,7 @@ async function applyFilters() {
   //$('#filter-applied').toggle();
   storeFilters(filtersList);
   displayFilterCount();
-  redrawMap();
+  redrawMap(true);
 }
 
 function storeFilters() {
