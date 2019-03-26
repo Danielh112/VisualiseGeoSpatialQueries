@@ -188,7 +188,6 @@ associated with users DB
 */
 
 function retrieveCollectionList() {
-
   const url = $('#hostname').val() + ':' + $('#port ').val();
   const username = $('#username').val();
   const password = $('#password').val();

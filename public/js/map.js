@@ -27,6 +27,7 @@ async function initialise() {
     initialiseMapTools();
     mapDetails(mapData);
     createToolTip();
+    createPopup();
     if (mapData.features !== undefined) {
       geoJSONLayer = appendGeoJson(map, mapData);
       centerMap(map, geoJSONLayer);
@@ -226,6 +227,15 @@ function createToolTip() {
     .style('opacity', 0);
 }
 
+/* Create popup */
+function createPopup() {
+  return popup = d3.select('#map-container')
+    .append('div')
+    .attr('class', 'popup')
+    .style('opacity', 0)
+    .style("z-index", "999");
+}
+
 /* Display Information regarding to the collection inc,
   collection name, total geospatial objects and total geospatial objects */
 async function mapDetails(mapDetails) {
@@ -253,12 +263,32 @@ async function mapDetails(mapDetails) {
       Note: If the point doesn't have any relevant properties don't
       display tooltip*/
 function tipMouseOver(feature, layer) {
+
+  /* Clicked: Display full panel info */
+  layer.on("click", function (e) {
+    tipMouseOut();
+    const point = map.latLngToContainerPoint(e.latlng);
+
+      popup.transition()
+        .duration(200)
+        .style('opacity', .9);
+
+      popup.html();
+      $.each( e.sourceTarget.feature, function( key, value ) {
+        popup.appendHTML(`${key} ${value}`);
+      });
+
+      popup.style('left', (point.x) + 'px')
+        .style('top', (point.y - 28) + 'px');
+    });
+
+  /* Hover: Display name */
   layer.on('mouseover', function(e) {
 
     const point = map.latLngToContainerPoint(e.latlng);
-    let popupContents;
-    if (e.target.feature.properties.name) {
-      popupContents = e.target.feature.properties.name
+    let tipContents;
+    if (popup._groups[0][0].style.opacity == 0 && e.target.feature.properties.name) {
+      tipContents = e.target.feature.properties.name
     } else {
       return;
     }
@@ -267,7 +297,7 @@ function tipMouseOver(feature, layer) {
       .duration(200)
       .style('opacity', .9);
 
-    tip.html('<b>Location: </b> ' + popupContents)
+    tip.html('<b>Location: </b> ' + tipContents)
       .style('left', (point.x) + 'px')
       .style('top', (point.y - 28) + 'px');
   });
@@ -276,6 +306,13 @@ function tipMouseOver(feature, layer) {
 /* On Tooltip mouse out */
 function tipMouseOut() {
   tip.transition()
+    .duration(500)
+    .style('opacity', 0);
+}
+
+/* On popup mouse out */
+function popupMouseOut() {
+  popup.transition()
     .duration(500)
     .style('opacity', 0);
 }
