@@ -273,13 +273,17 @@ function tipMouseOver(feature, layer) {
         .duration(200)
         .style('opacity', .9);
 
-      popup.html();
-      $.each( e.sourceTarget.feature, function( key, value ) {
-        popup.appendHTML(`${key} ${value}`);
+      /* GeoJSON Properties Panel */
+      let popupContent = '<b> Properties </b> <br> ';
+
+      $.each(e.sourceTarget.feature.properties, function( key, value ) {
+          popupContent += '<b>' + key + '</b>' + ':' + JSON.stringify(value) + '<br>';
       });
 
-      popup.style('left', (point.x) + 'px')
-        .style('top', (point.y - 28) + 'px');
+      popupContent += '<b> Geometry: </b>' + JSON.stringify(e.sourceTarget.feature.geometry);
+      popup.html(popupContent)
+      .style('left', (point.x) + 'px')
+        .style('top', (point.y) + 'px');
     });
 
   /* Hover: Display name */
