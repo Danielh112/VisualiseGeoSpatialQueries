@@ -12,12 +12,14 @@ const locLabels = ['loc', 'location', 'Loc', 'Location'];
 
 router.get('/', async (req, res) => {
   let collection = req.query.collection;
+
   let filters = filterBuilder(req.query.filterCollection);
   let mapBounds = mapBoundsBuilder(req.query.mapBounds);
+  let findParam = Object.assign({},filters, mapBounds);
 
   const client = await mongoDBConnection.establishConn(req.query);
   const db = client.db(req.query.database);
-  db.collection(collection).find(mapBounds).limit(config.mapLimit).toArray(function(err, result) {
+  db.collection(collection).find(findParam).limit(config.mapLimit).toArray(function(err, result) {
     if (err) throw err;
     res.status(200).send(
       parseJson(result)

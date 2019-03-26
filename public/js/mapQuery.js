@@ -1,3 +1,19 @@
+let queryModification = false;
+
+$(document).ready(function() {
+
+  $('#generatedQuery').keyup(function(){
+    queryModification = true;
+  });
+
+  $('.execute-query').click(function() {
+    if (queryModification) {
+      queryModification = false;
+      executeQuery($('#generatedQuery').text());
+    }
+  });
+});
+
 function executeQuery(queryValue) {
 
   if (queryValue !== '') {
@@ -31,7 +47,7 @@ function executeQuery(queryValue) {
           displayQueryResults(response);
         },
         error: function(err) {
-          displayQueryResults(err.responseJSON.errmsg);
+          displayInvalidResults(err.responseJSON.error.message);
         }
       });
     });
@@ -42,14 +58,15 @@ function executeQuery(queryValue) {
 function displayQueryResults(results) {
   $('#execute-query-container').html('');
 
-  if (typeof results !== 'string') {
     results.forEach(function(record) {
       recordStr = JSON.stringify(record);
       if (results !== '') {
         $('#execute-query-container').append(`<li> ${recordStr} </li>`);
       }
     });
-  } else {
-    $('#execute-query-container').append(`<li> ${results} </li>`);
-  }
+}
+
+function displayInvalidResults(results) {
+  $('#execute-query-container').html('');
+  $('#execute-query-container').append(`<li> ${results} </li>`);
 }
