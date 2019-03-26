@@ -10,9 +10,14 @@ let selectedAttributeRow;
 let animating = false;
 
 /* Connection test in progress */
+let retrievingCollectionList = false;
 let connetionTest = false;
 
 $(document).ready(function() {
+
+  $('.prev').click(function() {
+    prevTab($(this).closest('fieldset'));
+  });
 
   $('.next').click(function() {
     nextTab($(this).closest('fieldset'));
@@ -27,6 +32,7 @@ $(document).ready(function() {
   });
 
   $('.retrieveCollections').click(function() {
+    displayModal('#conn-successful-modal');
     retrieveCollectionList();
   });
 
@@ -79,10 +85,63 @@ $(document).ready(function() {
   });
 
   $('.close').click(function(event) {
-      event.preventDefault();
-      $(this).parent().addClass('hidden');
+    event.preventDefault();
+    $(this).parent().addClass('hidden');
   });
 });
+
+/*
+Navigate to the next fieldset
+  - Locate current and next Fieldset
+  - Animate Transition
+      1. Scale current screen to 80%
+      2. Bring new fieldset to view
+      3. Set opacity of new screen to 1
+*/
+
+function prevTab(current_fs) {
+
+  if (validateForm(current_fs) == true && !animating) {
+    animating = true;
+
+    prev_fs = current_fs.prev('fieldset');
+
+    $("#progressbar li").eq($("fieldset").index(current_fs)).removeClass("active");
+
+    //show the previous fieldset
+    prev_fs.show();
+    //hide the current fieldset with style
+    current_fs.animate({
+      opacity: 0
+    }, {
+      step: function(now, mx) {
+        scale = 0.8 + (1 - now) * 0.2;
+        left = ((1 - now) * 50) + "%";
+        opacity = 1 - now;
+        current_fs.css({
+          'left': left,
+        });
+        prev_fs.css({
+          'transform': 'scale(' + scale + ')',
+          'opacity': opacity,
+          'display': 'block',
+        });
+
+      },
+      duration: 800,
+      complete: function() {
+        current_fs.hide();
+        animating = false;
+        prev_fs.css({
+          'position': 'relative'
+        });
+      },
+      //this comes from the custom easing plugin
+      easing: 'easeInOutBack'
+    });
+  }
+}
+
 
 /*
 Navigate to the next fieldset
@@ -188,30 +247,35 @@ associated with users DB
 */
 
 function retrieveCollectionList() {
-  const url = $('#hostname').val() + ':' + $('#port ').val();
-  const username = $('#username').val();
-  const password = $('#password').val();
-  const database = $('#database').val();
+  if (!retrievingCollectionList) {
+    retrievingCollectionList = true;
+    const url = $('#hostname').val() + ':' + $('#port ').val();
+    const username = $('#username').val();
+    const password = $('#password').val();
+    const database = $('#database').val();
 
-  $.ajax({
-    url: 'http://localhost:3000/api/mongoDB/collection',
-    type: 'get',
-    data: {
-      url: encodeURIComponent(url),
-      username: username,
-      password: password,
-      database: database
-    },
-    dataType: 'json',
-    success: function(response) {
-      $.each(response, function(i, item) {
-        $('#collection-list-items').append('<tr><td class="row-id">' + i + '</td><td class="row-collection-name">' + item.name + "</td></tr>");
-      });
-    },
-    error: function(err) {
-      console.log(err);
-    }
-  });
+    $.ajax({
+      url: 'http://localhost:3000/api/mongoDB/collection',
+      type: 'get',
+      data: {
+        url: encodeURIComponent(url),
+        username: username,
+        password: password,
+        database: database
+      },
+      dataType: 'json',
+      success: function(response) {
+        $.each(response, function(i, item) {
+          $('#collection-list-items').append('<tr><td class="row-id">' + i + '</td><td class="row-collection-name">' + item.name + "</td></tr>");
+        });
+        retrievingCollectionList = false;
+      },
+      error: function(err) {
+        console.log(err);
+        retrievingCollectionList = false;
+      }
+    });
+  }
 }
 
 function toggleAuthenticationSelection(selection) {
@@ -234,17 +298,20 @@ function toggleCollectionSelection(row, collectionNames) {
     row.addClass('selected');
     selectedCollection = collectionName;
     selectedRow = row;
+    $('#connect-to-collection').removeClass('btn-default-disabled');
     /* Class already selected */
   } else if (selectedCollection === collectionName) {
     row.removeClass('selected');
     selectedCollection = undefined;
     selectedRow = undefined;
+    $('#connect-to-collection').addClass('btn-default-disabled');
     /* Selected New collection */
   } else {
     selectedRow.removeClass('selected');
     row.addClass('selected');
     selectedCollection = collectionName;
     selectedRow = row;
+    $('#connect-to-collection').removeClass('btn-default-disabled');
   }
 }
 

@@ -78,6 +78,7 @@
                   <input type="password" class="form-control form-input" id="password" placeholder="Password">
                 </div>
                 <div class="form-navigation">
+                  <input type="button" name="prev" class="prev btn-default btn-default-hover" value="Prev" />
                   <input type="button" name="next" class="next btn-default btn-default-hover
                   pull-right" value="Next" />
                   <div class="form-navigation">
@@ -99,6 +100,7 @@
                   <label id="databaseLabel" class="form-label" for="hostname">Database Name</label>
                   <input type="text" class="form-control form-input" id="database" placeholder="Database Name" value="VisualisingSpatialData">
                   <div class="form-navigation">
+                    <input type="button" name="prev" class="prev btn-default btn-default-hover" value="Prev" />
                     <input type="button" name="Test Connection" class="test-connection btn-default btn-default-hover pull-right" value="Test Connection" />
                     <div class="form-navigation">
                     </div>
@@ -155,7 +157,8 @@
                     </table>
                   </div>
                   <div class="form-navigation-col">
-                    <input type="button" name="Connect" class="display-map btn-default btn-default-hover pull-right" value="Connect" />
+                    <input type="button" name="prev" class="prev btn-default btn-default-hover" value="Prev" />
+                    <input type="button" id="connect-to-collection" name="Connect" class="display-map btn-default btn-default-hover pull-right btn-default-disabled" value="Connect" />
                   </div>
                 </div>
               </div>

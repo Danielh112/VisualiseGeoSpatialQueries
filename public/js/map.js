@@ -342,6 +342,18 @@ function zoomedMap() {
 }
 
 $(function() {
+  map.on('click', function() {
+    if (popup._groups[0][0].style.opacity > 0) {
+      popupMouseOut();
+    }
+  });
+
+  map.on('movestart', function() {
+    if (popup._groups[0][0].style.opacity > 0) {
+      popupMouseOut();
+    }
+  });
+
   map.on('moveend', function() {
     const geospatialIndex = sessionStorage.getItem('geospatialIndex');
     if (geospatialIndex === "true") {
