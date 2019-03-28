@@ -2,7 +2,7 @@ let queryModification = false;
 
 $(document).ready(function() {
 
-  $('#generatedQuery').keyup(function(){
+  $('#generatedQuery').keyup(function() {
     queryModification = true;
   });
 
@@ -56,17 +56,36 @@ function executeQuery(queryValue) {
 
 
 function displayQueryResults(results) {
+
+
+  if ($('#execute-query-container').is(":hidden")) {
+    borderAnimation();
+  }
+
   $('#execute-query-container').html('');
 
-    results.forEach(function(record) {
-      recordStr = JSON.stringify(record);
-      if (results !== '') {
-        $('#execute-query-container').append(`<li> ${recordStr} </li>`);
-      }
-    });
+  results.forEach(function(record) {
+    recordStr = JSON.stringify(record);
+    if (results !== '') {
+      $('#execute-query-container').append(`<li> ${recordStr} </li>`);
+    }
+  });
 }
 
 function displayInvalidResults(results) {
   $('#execute-query-container').html('');
   $('#execute-query-container').append(`<li> ${results} </li>`);
+}
+
+function borderAnimation() {
+  const rollingBorder = $('#execute-query').rollingBorder({
+    padding: 0.5,
+    color: "#4CA84A",
+    width: 0.5,
+    length: "100%",
+  });
+
+
+
+  setTimeout(function(){ rollingBorder.destroy() }, 500);
 }
