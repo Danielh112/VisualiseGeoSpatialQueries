@@ -68,6 +68,7 @@
             <div class="col-md-4 no-padding-or-margin">
               <ul id="tabs" class="nav nav-tabs">
                 <li id="tools-tab" class="tab active"><a href="#">Tools</a></li>
+                <li id="Creator-tab" class="tab"><a href="#">Creator</a></li>
                 <li id="filters-tab" class="tab"><a href="#">Filters <span id="filters-indicator">0</span></a></li>
               </ul>
               <div id="tools-tab-container" class="mapToolBar side-panel">
@@ -271,6 +272,18 @@
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+              <div id="Creator-tab-container" class="side-panel mapToolBar hidden">
+                <div class="filters-content">
+                  <h2 class="display-4 landing-title tool-section-title"><span>Collection Filters</span></h2>
+                  <p>
+                    Automatically generate a geospatial query.
+                  </p>
+                  <div id="creator-input" class="form-control" contenteditable="true"></div>
+                </div>
+                <div class="">
+                  <input type="button" id="apply-creator-input" name="apply-creator-input" class="btn-default btn-default-hover pull-right btn-green" value="Generate Query">
                 </div>
               </div>
               <div id="filters-tab-container" class="side-panel mapToolBar hidden">

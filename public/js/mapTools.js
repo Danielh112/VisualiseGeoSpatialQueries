@@ -581,7 +581,7 @@ function drawPolygon(shape) {
 function queryOutput(GenerateQuery) {
   GenerateQuery.then(function(query) {
     $('#generatedQuery').text(query.trim());
-    $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
+    //$(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
 
     executeQuery(query.trim());
   });

@@ -898,6 +898,13 @@ input[type=checkbox].panel-checkbox {
   padding-right: 30px;
 }
 
+
+/* Creator Tool */
+#creator-input {
+  overflow: auto;
+  height: 50px;
+}
+
 /* Default styles */
 .padding-sm {
   padding: 10px !important;
