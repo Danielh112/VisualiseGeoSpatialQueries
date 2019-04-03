@@ -96,7 +96,9 @@ $(document).ready(function() {
   $(".find-documents").autocomplete({
     source: function(request, response) {
       $.when(
-        findDocuments({name: $(this)[0].term})
+        findDocuments({
+          name: $(this)[0].term
+        })
       ).then(function(suggestions) {
         response(suggestions);
       })
@@ -341,10 +343,6 @@ function markerExists(mode) {
   }
 }
 
-function findDocuments() {
-
-}
-
 function drawMarker(button) {
   if (!markerExists('manual')) {
     button.addClass('btn-default-clicked');
@@ -449,7 +447,6 @@ function redrawMarker() {
 }
 
 function polygonExists(mode) {
-
   if (toolMode === 'geoIntersects') {
     geoIntersects.tool = mode;
     if (geoIntersects.polygonDrawn) {
@@ -580,11 +577,14 @@ function drawPolygon(shape) {
 
 function queryOutput(GenerateQuery) {
   GenerateQuery.then(function(query) {
-    $('#generatedQuery').text(query.trim());
-    $(`#${toolMode}`).find('.next').removeClass('btn-default-disabled');
+    $('#generatedQuery').text(query.replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, "").trim());
 
     executeQuery(query.trim());
   });
+}
+
+function nlpQueryOutput(GenerateQuery) {
+  $('#queryBreakdown').text(GenerateQuery.replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, "").trim());
 }
 
 function findDocuments(searchParam, mode) {
@@ -630,6 +630,42 @@ function findDocuments(searchParam, mode) {
   });
 }
 
+function queryBuilderNear() {
+  if (near.geo.geometry !== '') {
+    return queryBuilder(near.geo.geometry.geometry);
+  } else {
+    return queryBuilder();
+  }
+}
+
+function queryBuilderIntersects() {
+  if (geoIntersects.geo.geometry !== '') {
+    return queryBuilder(geoIntersects.geo.geometry);
+  } else {
+    return queryBuilder();
+  }
+}
+
+function queryBuilderWithin() {
+  if (geoWithin.geo.geometry !== '') {
+    return queryBuilder(geoWithin.geo.geometry);
+  } else {
+    return queryBuilder();
+  }
+}
+
+function queryBuilderMode() {
+  if (toolMode === 'near') {
+    return queryBuilderNear();
+  } else if (toolMode === 'geoIntersects') {
+    return queryBuilderIntersects();
+  } else if (toolMode === 'geoWithin') {
+    return queryBuilderWithin();
+  } else {
+    return queryBuilder();
+  }
+}
+
 function queryBuilder(geoJson, maxDistance, minDistance) {
 
   let collection = sessionStorage.getItem('collection');
@@ -649,7 +685,38 @@ function queryBuilder(geoJson, maxDistance, minDistance) {
       },
       dataType: 'json',
       success: function(response) {
+        nlpQueryBuilder(geoJson, maxDistance, minDistance);
         resolve(response.query);
+      },
+      error: function(err) {
+        //TODO display error in UI
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+}
+
+function nlpQueryBuilder(geoJson, maxDistance, minDistance) {
+
+  let collection = sessionStorage.getItem('collection');
+  let filters = sessionStorage.getItem('filterCollection');
+
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: 'http://localhost:3000/api/query/breakdown',
+      type: 'get',
+      data: {
+        collection: collection,
+        queryType: toolMode,
+        geometry: geoJson,
+        filters: filters,
+        maxDistance: maxDistance,
+        minDistance: minDistance
+      },
+      dataType: 'json',
+      success: function(response) {
+        nlpQueryOutput(response.query)
       },
       error: function(err) {
         //TODO display error in UI

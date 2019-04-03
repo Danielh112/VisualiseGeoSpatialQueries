@@ -30,6 +30,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
   <!-- Loadash -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.core.min.js"></script>
+  <!-- Border Animation -->
+  <script type="text/javascript" src="js/libaries/jquery.rollingBorder.js"></script>
+  <link rel="stylesheet" href="/css/libaries/jquery.rollingBorder.css" />
 
   <title>Visualise Spatial Queries</title>
 
@@ -277,16 +280,10 @@
                 <div class="filters-content">
                   <h2 class="display-4 landing-title tool-section-title"><span>Collection Filters</span></h2>
                   <p>
-                    Filter your collection to visualise geospatial objects with specific attributes.
+                    Filter your collection to visualise geospatial objects with specific attributes. <i class="fas fa-info-circle padding-left-md fa-sm" title="Tip: You can filter for sub matches e.g. T.G.I*"></i></h4>
                   </p>
-                  <h4>Attributes: <i class="fas fa-info-circle padding-left-md fa-sm" title="Tip: You can filter for sub matches e.g. T.G.I*"></i></h4>
-                  <table id="collection-attributes" class="table table-striped table-hover">
-                    <thead>
-                      <tr>
-                        <th scope="col" class="row-collection-name"></th>
-                      </tr>
-                    </thead>
-                    <tbody id="collection-list-items">
+                  <table id="collection-attributes" class="table table-hover">
+                    <tbody id="collection-attribute-items">
                     </tbody>
                   </table>
                 </div>
@@ -312,14 +309,17 @@
         <div class="row">
           <div class="col-md-12 margin-bottom-md query-panel">
             <ul id="tabs" class="nav nav-tabs">
-              <li id="generated-query" class="tab active"><a href="#">Generated Query:</a></li>
-              <li id="execute-query" class="tab execute-query"><a href="#">Query Output</a></li>
+              <li id="generated-query" class="tab active"><a href="#">Generated Query</a></li>
+              <li id="query-breakdown" class="tab"><a href="#">Query Breakdown</a></li>
+              <li id="execute-query" class="tab execute-query border-animation"><a href="#">Query Output</a></li>
             </ul>
             <div id="generated-query-container">
               <div id="generatedQuery" class="form-control query-output" contenteditable="true"></div>
             </div>
+            <div id="query-breakdown-container" class="hidden">
+              <div id="queryBreakdown" class="form-control query-output" contenteditable="true"></div>
+            </div>
             <div id="execute-query-container" class="form-control query-output hidden">
-
             </div>
           </div>
         </div>

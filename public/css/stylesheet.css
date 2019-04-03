@@ -267,6 +267,12 @@ ul.ui-autocomplete.ui-menu {
   overflow: auto;
 }
 
+#collection-attribute-items {
+  display: block;
+  height: 275px;
+  overflow: auto;
+}
+
 #collection-list>thead, tbody tr {
   display: table;
   width: 100%;
@@ -314,19 +320,26 @@ ul.ui-autocomplete.ui-menu {
   max-height: 300px;
 }
 
+#collection-attributes tr {
+  margin-top: 5px;
+  border-radius: 10px;
+}
+
 #collection-attributes td {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  border-radius: 10px;
+  margin-top: 4px;
+  background-color: #F5F5F5;
+  border-top: 0px;
 }
 
-#collection-attributes.table-striped>tbody>tr:nth-child(odd)>td,
-.table-striped>tbody>tr:nth-child(odd)>th {
+#collection-list.table-striped>tbody>tr:nth-child(odd)>th {
   background-color: #F5F5F5;
 }
 
-#collection-attributes.table-striped>tbody>tr:nth-child(even)>td,
-.table-striped>tbody>tr:nth-child(even)>th {
+#collection-list.table-striped>tbody>tr:nth-child(even)>th {
   background-color: #FFFFFF;
 }
 
@@ -477,6 +490,13 @@ ul#progressbar {
   content: " ";
   display: block;
   border-bottom: 1px solid #c9c9c9;
+}
+
+#content {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
 }
 
 .tab {
@@ -651,6 +671,10 @@ div.popup {
   padding-bottom: 3px;
 }
 
+.container {
+  flex: 1 1 auto;
+}
+
 #query-tabs {
   margin: 3px 0px 0px 4px;
 }
@@ -661,6 +685,10 @@ div.popup {
 }
 
 #generated-query-container {
+  width: 100%;
+}
+
+#query-breakdown-container {
   width: 100%;
 }
 
@@ -783,6 +811,10 @@ div.popup {
   font-size: 15px;
 }
 
+.row {
+  height: 100%;
+}
+
 .full-panel {
   height: 473px;
   display: flex;
@@ -834,10 +866,11 @@ input[type=checkbox].panel-checkbox {
 }
 
 .query-output {
-  flex: 1;
-  height: 75px !important;
+  min-height: 75px !important;
+  max-height: 200px;
   resize: none;
   overflow: auto;
+  white-space: pre-wrap;
 }
 
 /* Intersect panel */
@@ -896,6 +929,12 @@ input[type=checkbox].panel-checkbox {
 
 .right-addon input {
   padding-right: 30px;
+}
+
+/* Creator Tool */
+#creator-input {
+  overflow: auto;
+  height: 50px;
 }
 
 /* Default styles */
