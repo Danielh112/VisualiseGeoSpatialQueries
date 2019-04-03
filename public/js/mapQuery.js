@@ -3,7 +3,10 @@ let queryModification = false;
 $(document).ready(function() {
 
   $('#generatedQuery').keyup(function() {
-    queryModification = true;
+    if (!queryModification && $('#execute-query-container').is(":hidden")) {
+      borderAnimation();
+      queryModification = true;
+    }
   });
 
   $('.execute-query').click(function() {
@@ -56,7 +59,6 @@ function executeQuery(queryValue) {
 
 
 function displayQueryResults(results) {
-
 
   if ($('#execute-query-container').is(":hidden")) {
     borderAnimation();

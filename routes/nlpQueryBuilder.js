@@ -4,19 +4,28 @@ const router = express.Router();
 router.get('/', async (req, res, next) => {
 
   const collection = req.query.collection;
-  let spatialParams = spatialQueryBuilder(req, next);
+  const queryType = req.query.queryType;
   const filters = filtersExpr(req.query.filters);
 
-  if (spatialParams !== '' && filters !== '') {
-    spatialParams += ',';
+  let geospatialOperators = '';
+  if (queryType === 'near' || queryType === 'nearSphere') {
+    geospatialOperators += nearQuery(req, next);
   }
 
-  let query = `db.${collection}.find(
-      {
-        ${spatialParams}
-        ${filters}
-      }
-     )`;
+  /* If the geospatial object does not contain properties
+  it means we are searching within/interesecting a spatial polygon */
+
+  if (queryType === 'geoIntersects' || queryType === 'geoWithin') {
+    if (req.query.geometry.properties == undefined) {
+      geospatialOperators += spatialObjectQuery(req, next);
+    } else {
+      geospatialOperators += centerSphereQuery(req, next);
+    }
+  }
+
+  let query = `In collection: ${collection}
+  ${geospatialOperators}
+  ${filters}`;
 
   var response = {
     status: 200,
@@ -25,44 +34,27 @@ router.get('/', async (req, res, next) => {
   res.end(JSON.stringify(response));
 });
 
-function spatialQueryBuilder(req, next) {
-  const queryType = req.query.queryType;
-
-  if (queryType === 'near' || queryType === 'nearSphere') {
-    return nearQuery(req, next);
-  } else if (queryType === 'geoIntersects' || queryType === 'geoWithin') {
-    if (req.query.geometry.properties == undefined) {
-      return spatialObjectQuery(req, next);
-    } else {
-      return centerSphereQuery(req, next);
-    }
-  } else {
-    return '';
-  }
-}
-
 function nearQuery(req) {
 
   const queryType = req.query.queryType;
   const coordinates = req.query.geometry.coordinates;
+  const locName = req.query.geometry.locName;
   const maxDistance = maxDistanceExpr(req.query.maxDistance);
   const minDistance = minDistanceExpr(req.query.minDistance);
 
-  return `"location":
-         { "$${queryType}" :
-            {
-              "$geometry": { "type": "Point", "coordinates": [${coordinates}] }
-              ${maxDistance}
-              ${minDistance}
-            }
-         }`;
+  return `Find geospatial objects near
+      ${coordinates}
+        ${maxDistance}
+        ${minDistance}`;
 }
 
 function filtersExpr(filters) {
   if (filters === undefined || filters.length === 0 || !filters.trim() || filters === '{}') {
     return '';
   } else {
-    return `${filters.replace('{','').replace('}','')}`;
+
+    return`Where:
+      ${filters.replace('{','').replace('}','')}`;
   }
 }
 
@@ -70,7 +62,8 @@ function maxDistanceExpr(distance) {
   if (distance === undefined) {
     return '';
   } else {
-    return `,"$maxDistance": ${distance}`;
+    return `Within:
+              ${distance}m`;
   }
 }
 
@@ -78,39 +71,29 @@ function minDistanceExpr(distance) {
   if (distance === undefined || distance === '') {
     return '';
   } else {
-    return `,"$minDistance": ${distance}`;
+    return `And Greater than:
+              ${distance}m`;
   }
 }
 
 
 function spatialObjectQuery(req) {
 
-  const collection = req.query.collection;
   const queryType = req.query.queryType;
   const coordinates = coordinateExpr(req.query.geometry.geometry.coordinates);
 
-  return `"location":
-         { "$${queryType}" :
-            {
-              "$geometry": { "type": "Polygon", "coordinates": ${coordinates} }
-            }
-          }`;
+  return `Find geospatial objects ${queryType} region
+      ${coordinates}`;
 }
 
 function centerSphereQuery(req) {
 
-  const collection = req.query.collection;
   const queryType = req.query.queryType;
   const coordinates = coordinateExpr(req.query.geometry.geometry.coordinates);
   const properties = req.query.geometry.properties;
-  const filters = filtersExpr(req.query.filters);
 
-  return `"location":
-         { "$${queryType}" :
-            {
-              "$centerSphere": [ ${coordinates} , ${properties.radius} ]
-            }
-          }`;
+  return `Find geospatial objects using sphere from point
+      ${coordinates}`;
 }
 
 /* Reverse array and stringify coordinates */

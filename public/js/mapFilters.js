@@ -14,6 +14,9 @@ async function initaliseFilters() {
   attributes = await populateAttributes();
   displayAttributes(attributes);
   displayFilterCount();
+  const generatedQuery = queryBuilderMode();
+  nlpQueryBuilder();
+  queryOutput(generatedQuery);
 }
 
 /* - Get inputted filters by user
@@ -31,6 +34,8 @@ async function applyFilters() {
   storeFilters(filtersList);
   displayFilterCount();
   redrawMap(true);
+  const generatedQuery = queryBuilderMode();
+  queryOutput(generatedQuery);
 }
 
 function storeFilters() {
@@ -89,7 +94,7 @@ function displayAttributes(attributes) {
     }
 
     if (attrValue !== '') {
-      $('#collection-list-items').append(
+      $('#collection-attribute-items').append(
         `<tr>
           <td class="row-collection-name no-padding">
             <div class="panel transparent-panel no-margin">
@@ -103,7 +108,7 @@ function displayAttributes(attributes) {
               </div>
             </td></tr>`);
     } else {
-      $('#collection-list-items').append(
+      $('#collection-attribute-items').append(
         `<tr>
           <td class="row-collection-name no-padding">
             <div class="panel filter-section transparent-panel no-margin">
@@ -119,7 +124,7 @@ function displayAttributes(attributes) {
     }
 
 
-    $('#collection-list-items').find('input[type=text]:last').autocomplete({
+    $('#collection-attribute-items').find('input[type=text]:last').autocomplete({
       source: function(request, response) {
         $.when(
           findDocuments({[`${$(this.element).prop('id')}`]: `${$(this)[0].term}`}, 'filters')
