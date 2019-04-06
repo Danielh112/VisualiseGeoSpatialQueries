@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 require('express-async-errors');
 const bodyParser = require("body-parser");
 const mongoDB = require('../routes/mongoDBConnection')
@@ -11,6 +12,9 @@ const error = require('../middleware/error');
 
 module.exports = function(app) {
   app.use(express.static(path.join(__dirname, '../public')));
+  app.use(cors({
+    origin: '*'
+  }));
   app.use('/api/mongoDB', mongoDB.router);
   app.use('/api/mongoDB/collection', mongoDBCollection);
   app.use('/api/map', map);
