@@ -69,7 +69,7 @@ router.get('/executeQuery', async (req, res) => {
     } else {
       res.status(200).send(
         result
-      );  
+      );
     }
   });
 });
@@ -112,18 +112,18 @@ function establishConn(req) {
   let database = req.database;
 
   /*  Auth or no Auth */
-  if (username & password) {
+  if (username !== '' & password !== '') {
     url = 'mongodb://' + username + ':' + password + '@' + url + '/' + database;
   } else {
     url = 'mongodb://' + url + '/';
   }
 
   return new Promise((resolve, reject) => {
-    MongoClient.connect(url, {
+    MongoClient.connect(decodeURIComponent(url), {
       useNewUrlParser: true
     }, function(err, client) {
-
       if (err) {
+        console.log('Error ' + err);
         reject(err);
       } else {
         console.log('connected to ' + req.url);
