@@ -596,7 +596,7 @@ function findDocuments(searchParam, mode) {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: 'http://localhost:3000/api/mongoDB/findDocuments',
+      url: '../api/mongoDB/findDocuments',
       type: 'get',
       data: {
         url: encodeURIComponent(url),
@@ -673,7 +673,7 @@ function queryBuilder(geoJson, maxDistance, minDistance) {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: 'http://localhost:3000/api/query',
+      url: '../api/query',
       type: 'get',
       data: {
         collection: collection,
@@ -704,7 +704,7 @@ function nlpQueryBuilder(geoJson, maxDistance, minDistance) {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: 'http://localhost:3000/api/query/breakdown',
+      url: '../api/query/breakdown',
       type: 'get',
       data: {
         collection: collection,

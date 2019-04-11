@@ -216,7 +216,7 @@ function testConnection() {
     const database = $('#database').val();
 
     $.ajax({
-      url: 'http://localhost:3000/api/mongoDB/testConnection',
+      url: '../api/mongoDB/testConnection',
       type: 'get',
       data: {
         url: encodeURIComponent(url),
@@ -255,7 +255,7 @@ function retrieveCollectionList() {
     const database = $('#database').val();
 
     $.ajax({
-      url: 'http://localhost:3000/api/mongoDB/collection',
+      url: '../api/mongoDB/collection',
       type: 'get',
       data: {
         url: encodeURIComponent(url),
@@ -389,7 +389,7 @@ function validateGeospatialIndex() {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: 'http://localhost:3000/api/mongoDB/collection/index/geospatial',
+      url: '../api/mongoDB/collection/index/geospatial',
       type: 'get',
       data: {
         url: encodeURIComponent(url),
@@ -427,7 +427,7 @@ function populateAttributes() {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: 'http://localhost:3000/api/mongoDB/collection/attributes',
+      url: '../api/mongoDB/collection/attributes',
       type: 'get',
       data: {
         url: encodeURIComponent(url),
@@ -458,7 +458,7 @@ function createGeospatialIndex() {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: 'http://localhost:3000/api/mongoDB/collection/index/geospatial',
+      url: '../api/mongoDB/collection/index/geospatial',
       type: 'post',
       data: jQuery.param({
         url: encodeURIComponent(url),
@@ -493,5 +493,5 @@ async function displayMap() {
 
 function showMap() {
   //TODO Hard coded change
-  window.location.href = 'http://localhost:3000/map';
+  window.location.href = 'map';
 }
