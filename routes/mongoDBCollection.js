@@ -98,7 +98,7 @@ router.post('/index/geospatial', async (req, res, next) => {
       } else {
         res.status(200).send({
           spatialIndex: result
-        });  
+        });
       }
     });
 
@@ -115,7 +115,6 @@ function geospatialIndexBuilder(attribute, next) {
 }
 
 function getCollectionAttributes(db, collection) {
-
   return new Promise((resolve, reject) => {
     var result = db.collection(collection).aggregate([{
         '$project': {
@@ -136,7 +135,11 @@ function getCollectionAttributes(db, collection) {
         }
       }
     ]).toArray(function(err, result) {
-      resolve(result[0].allkeys);
+      if (Object.entries(result).length > 0) {
+        resolve(result[0].allkeys);
+      } else {
+          resolve(result);
+      }
     });
   });
 }
