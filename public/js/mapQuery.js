@@ -33,7 +33,7 @@ function executeQuery(queryValue) {
 
     return new Promise((resolve, reject) => {
       $.ajax({
-        url: '../api/mongoDB/executeQuery',
+        url: '../api/mongoDB/execute-query',
         type: 'get',
         data: {
           url: encodeURIComponent(url),

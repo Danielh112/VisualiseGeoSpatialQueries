@@ -5,7 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 const config = require('../config/config');
 const map = config.defaultMapConnection;
 
-router.get('/testConnection', async (req, res, next) => {
+router.get('/test-connection', async (req, res, next) => {
   const client = await establishConn(req.query);
   const db = client.db(req.query.database);
 
@@ -24,7 +24,7 @@ router.get('/testConnection', async (req, res, next) => {
   });
 });
 
-router.get('/findDocuments', async (req, res) => {
+router.get('/find-documents', async (req, res) => {
   const client = await establishConn(req.query);
   const db = client.db(req.query.database);
   const collection = req.query.collection;
@@ -53,7 +53,7 @@ router.get('/findDocuments', async (req, res) => {
   });
 });
 
-router.get('/executeQuery', async (req, res) => {
+router.get('/execute-query', async (req, res) => {
   const client = await establishConn(req.query);
   const db = client.db(req.query.database);
   const collection = req.query.collection;

@@ -596,7 +596,7 @@ function findDocuments(searchParam, mode) {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: '../api/mongoDB/findDocuments',
+      url: '../api/mongoDB/find-documents',
       type: 'get',
       data: {
         url: encodeURIComponent(url),

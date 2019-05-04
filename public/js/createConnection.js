@@ -216,7 +216,7 @@ function testConnection() {
     const database = $('#database').val();
 
     $.ajax({
-      url: '../api/mongoDB/testConnection',
+      url: '../api/mongoDB/test-connection',
       type: 'get',
       data: {
         url: encodeURIComponent(url),
