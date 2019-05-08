@@ -45,6 +45,47 @@ router.get('/size', async (req, res) => {
   });
 });
 
+router.get('/attribute/type', async (req, res) => {
+  let collection = req.query.collection;
+
+  const client = await mongoDBConnection.establishConn(req.query);
+  const db = client.db(req.query.database);
+
+  const attr = req.query.attribute;
+  let attrType = '';
+
+  db.collection(collection).findOne({}, function(err, result) {
+    if (err) throw err;
+
+    for (let key in result) {
+      if (result.hasOwnProperty(key)) {
+        console.log(key + ":" + attr);
+        if (key === attr) {
+          attrType = typeof result[key];
+        }
+      }
+    }
+
+    res.status(200).send({
+      'attributeType': attrType
+    });
+  });
+});
+
+router.get('/size', async (req, res) => {
+  const collection = req.query.collection;
+
+  const client = await mongoDBConnection.establishConn(req.query);
+  const db = client.db(req.query.database);
+
+  db.collection(collection).estimatedDocumentCount({}, function(err, result) {
+    if (err) throw err;
+    res.status(200).send({
+      'documentCount': result
+    });
+  });
+});
+
 router.get('/index/geospatial', async (req, res) => {
 
   const client = await mongoDBConnection.establishConn(req.query);
@@ -138,7 +179,7 @@ function getCollectionAttributes(db, collection) {
       if (Object.entries(result).length > 0) {
         resolve(result[0].allkeys);
       } else {
-          resolve(result);
+        resolve(result);
       }
     });
   });

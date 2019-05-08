@@ -30,8 +30,9 @@ async function applyFilters() {
       filtersList[$(this).attr('id')] = $(this).val();
     }
   });
+
   //$('#filter-applied').toggle();
-  storeFilters(filtersList);
+  storeFilters();
   displayFilterCount();
   redrawMap(true);
   const generatedQuery = queryBuilderMode();
@@ -71,6 +72,38 @@ function populateAttributes() {
         password: password,
         database: database,
         collection: collection
+      },
+      dataType: 'json',
+      success: function(response) {
+        resolve(response);
+      },
+      error: function(err) {
+        //TODO display error in UI
+        console.log(err);
+        reject(err);
+      }
+    });
+  });
+}
+
+function getAttributeType(attribute) {
+  let url = sessionStorage.getItem('url');
+  let username = sessionStorage.getItem('username');
+  let password = sessionStorage.getItem('password');
+  let database = sessionStorage.getItem('database');
+  let collection = sessionStorage.getItem('collection');
+
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: '../api/mongoDB/collection/attribute/type',
+      type: 'get',
+      data: {
+        url: encodeURIComponent(url),
+        username: username,
+        password: password,
+        database: database,
+        collection: collection,
+        attribute: attribute
       },
       dataType: 'json',
       success: function(response) {
