@@ -33,7 +33,7 @@ function executeQuery(queryValue) {
 
     return new Promise((resolve, reject) => {
       $.ajax({
-        url: 'http://localhost:3000/api/mongoDB/executeQuery',
+        url: '../api/mongoDB/execute-query',
         type: 'get',
         data: {
           url: encodeURIComponent(url),
@@ -50,7 +50,11 @@ function executeQuery(queryValue) {
           displayQueryResults(response);
         },
         error: function(err) {
-          displayInvalidResults(err.responseJSON.error.message);
+          if (err.responseJSON.error !== undefined) {
+            displayInvalidResults(err.responseJSON.error.message);
+          } else {
+            displayInvalidResults(err.responseJSON.errmsg);
+          }
         }
       });
     });

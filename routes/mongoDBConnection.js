@@ -5,7 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 const config = require('../config/config');
 const map = config.defaultMapConnection;
 
-router.get('/testConnection', async (req, res, next) => {
+router.get('/test-connection', async (req, res, next) => {
   const client = await establishConn(req.query);
   const db = client.db(req.query.database);
 
@@ -16,6 +16,7 @@ router.get('/testConnection', async (req, res, next) => {
       });
     }
 
+    console.log('connected to ' + req.url);
     var response = {
       status: 200,
       success: 'Connection successfully established'
@@ -24,7 +25,7 @@ router.get('/testConnection', async (req, res, next) => {
   });
 });
 
-router.get('/findDocuments', async (req, res) => {
+router.get('/find-documents', async (req, res) => {
   const client = await establishConn(req.query);
   const db = client.db(req.query.database);
   const collection = req.query.collection;
@@ -53,7 +54,7 @@ router.get('/findDocuments', async (req, res) => {
   });
 });
 
-router.get('/executeQuery', async (req, res) => {
+router.get('/execute-query', async (req, res) => {
   const client = await establishConn(req.query);
   const db = client.db(req.query.database);
   const collection = req.query.collection;
@@ -69,7 +70,7 @@ router.get('/executeQuery', async (req, res) => {
     } else {
       res.status(200).send(
         result
-      );  
+      );
     }
   });
 });
@@ -112,21 +113,20 @@ function establishConn(req) {
   let database = req.database;
 
   /*  Auth or no Auth */
-  if (username & password) {
+  if (username !== '' & password !== '') {
     url = 'mongodb://' + username + ':' + password + '@' + url + '/' + database;
   } else {
     url = 'mongodb://' + url + '/';
   }
 
   return new Promise((resolve, reject) => {
-    MongoClient.connect(url, {
+    MongoClient.connect(decodeURIComponent(url), {
       useNewUrlParser: true
     }, function(err, client) {
-
       if (err) {
+        console.log('Error ' + err);
         reject(err);
       } else {
-        console.log('connected to ' + req.url);
         resolve(client);
       }
     })

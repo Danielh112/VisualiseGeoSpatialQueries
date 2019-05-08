@@ -108,7 +108,7 @@ function collectionDetails() {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: 'http://localhost:3000/api/mongoDB/collection/size',
+      url: '../api/mongoDB/collection/size',
       type: 'get',
       data: {
         url: encodeURIComponent(url),
@@ -154,7 +154,7 @@ function retrieveData(mapBounds) {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: 'http://localhost:3000/api/map',
+      url: '../api/map',
       type: 'get',
       data: {
         url: encodeURIComponent(url),

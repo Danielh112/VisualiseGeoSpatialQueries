@@ -12,10 +12,7 @@ const error = require('../middleware/error');
 
 module.exports = function(app) {
   app.use(express.static(path.join(__dirname, '../public')));
-  app.use(cors({
-    credentials: true,
-    origin: true}
-  ));
+  app.use(cors());
   app.use('/api/mongoDB', mongoDB.router);
   app.use('/api/mongoDB/collection', mongoDBCollection);
   app.use('/api/map', map);

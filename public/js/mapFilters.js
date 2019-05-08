@@ -63,7 +63,7 @@ function populateAttributes() {
 
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: 'http://localhost:3000/api/mongoDB/collection/attributes',
+      url: '../api/mongoDB/collection/attributes',
       type: 'get',
       data: {
         url: encodeURIComponent(url),
