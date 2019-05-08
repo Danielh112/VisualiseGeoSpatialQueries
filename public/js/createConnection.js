@@ -352,6 +352,7 @@ function storeLoginCredentials() {
   sessionStorage.setItem('password', $('#password').val());
   sessionStorage.setItem('database', $('#database').val());
   sessionStorage.setItem('collection', selectedCollection);
+  sessionStorage.removeItem('filterCollection');
 }
 
 function showLoadingBtn(cssClass) {
