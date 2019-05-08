@@ -16,6 +16,7 @@ router.get('/test-connection', async (req, res, next) => {
       });
     }
 
+    console.log('connected to ' + req.url);
     var response = {
       status: 200,
       success: 'Connection successfully established'
@@ -126,7 +127,6 @@ function establishConn(req) {
         console.log('Error ' + err);
         reject(err);
       } else {
-        console.log('connected to ' + req.url);
         resolve(client);
       }
     })
