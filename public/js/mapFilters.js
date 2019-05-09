@@ -19,18 +19,31 @@ async function initaliseFilters() {
   queryOutput(generatedQuery);
 }
 
+async function getFilterList() {
+  filtersList = {};
+  for (let filter of $('.filter-input')) {
+    if (filter.value != '') {
+      let attrType = await getAttributeType(filter.id);
+      filtersList[filter.id] = filter.value;
+
+      /*
+        Future Work here Validating filter type
+
+        if (attrType.attributeType === 'string') {
+          filtersList[filter.id] = filter.value;
+        }
+      */
+    }
+  }
+}
+
 /* - Get inputted filters by user
    - Store filters
    - Redraw map based on filters
 */
 async function applyFilters() {
-  filtersList = {};
-  $('.filter-input').each(function() {
-    if ($(this).val()) {
-      filtersList[$(this).attr('id')] = $(this).val();
-    }
-  });
 
+  await getFilterList();
   //$('#filter-applied').toggle();
   storeFilters();
   displayFilterCount();
@@ -160,7 +173,9 @@ function displayAttributes(attributes) {
     $('#collection-attribute-items').find('input[type=text]:last').autocomplete({
       source: function(request, response) {
         $.when(
-          findDocuments({[`${$(this.element).prop('id')}`]: `${$(this)[0].term}`}, 'filters')
+          findDocuments({
+            [`${$(this.element).prop('id')}`]: `${$(this)[0].term}`
+          }, 'filters')
         ).then(function(suggestions) {
           response(suggestions);
         })

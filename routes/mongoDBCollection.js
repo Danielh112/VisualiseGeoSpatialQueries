@@ -174,7 +174,7 @@ function getCollectionAttributes(db, collection) {
             '$addToSet': '$arrayofkeyvalue.k'
           }
         }
-      }
+      }, {'$limit' : 100}
     ]).toArray(function(err, result) {
       if (Object.entries(result).length > 0) {
         resolve(result[0].allkeys);
