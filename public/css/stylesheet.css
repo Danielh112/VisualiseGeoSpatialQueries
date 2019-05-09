@@ -762,6 +762,7 @@ div.popup {
   height: inherit;
   flex-direction: column;
   flex-grow: 1;
+  height: auto;
 }
 
 .filter-section>.panel-heading {
