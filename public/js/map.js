@@ -36,6 +36,7 @@ async function initialise() {
   }
 }
 
+/* Redraw and recenter map based on the current maps data */
 async function redrawMap(recenterMap, mapBounds) {
   mapData = await retrieveData(mapBounds);
   if (!_.isEqual(currentMapData, mapData)) {
@@ -334,7 +335,7 @@ function initialiseMapTools() {
 
 function zoomedMap() {
   if (!mapLoading && map.getZoom() >= 4) {
-    redrawMap(false, map.getBounds());
+    alh(false, map.getBounds());
     zoomed = true;
   } else if (!mapLoading && zoomed) {
     redrawMap(false);

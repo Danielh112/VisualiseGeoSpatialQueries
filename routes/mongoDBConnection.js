@@ -5,6 +5,10 @@ const MongoClient = require('mongodb').MongoClient;
 const config = require('../config/config');
 const map = config.defaultMapConnection;
 
+/* Test a MongoDB database connection
+  - Check whether a connection is able to successfully be made
+  - Validate that more than one collection exists within the connected database
+*/
 router.get('/test-connection', async (req, res, next) => {
   const client = await establishConn(req.query);
   const db = client.db(req.query.database);
@@ -25,6 +29,10 @@ router.get('/test-connection', async (req, res, next) => {
   });
 });
 
+/* Retrieve a list of x number of documents within a MongoDB collection
+  Note: Can be filtered on,
+    - geospatial parameters (e.g. find objects within region)
+    - Limit on the collectione (e.g. first 10 documents)*/
 router.get('/find-documents', async (req, res) => {
   const client = await establishConn(req.query);
   const db = client.db(req.query.database);
@@ -54,6 +62,7 @@ router.get('/find-documents', async (req, res) => {
   });
 });
 
+/* Run the generated MongoDB query */
 router.get('/execute-query', async (req, res) => {
   const client = await establishConn(req.query);
   const db = client.db(req.query.database);
@@ -105,6 +114,7 @@ function locType(toolMode) {
   }
 }
 
+/* Used to establish an inital connectiont to a MongoDB instance */
 function establishConn(req) {
 
   let url = req.url;

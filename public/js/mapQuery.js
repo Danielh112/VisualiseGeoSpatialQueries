@@ -17,6 +17,7 @@ $(document).ready(function() {
   });
 });
 
+/* Run the generated MongoDB query and retrieve a subset of the results */
 function executeQuery(queryValue) {
 
   if (queryValue !== '') {
@@ -61,7 +62,7 @@ function executeQuery(queryValue) {
   }
 }
 
-
+/* Output query results in the User interface */
 function displayQueryResults(results) {
 
   if ($('#execute-query-container').is(":hidden")) {
@@ -78,6 +79,7 @@ function displayQueryResults(results) {
   });
 }
 
+/* For invalid results display this in the UI */
 function displayInvalidResults(results) {
   $('#execute-query-container').html('');
   $('#execute-query-container').append(`<li> ${results} </li>`);
@@ -90,8 +92,6 @@ function borderAnimation() {
     width: 0.5,
     length: "100%",
   });
-
-
-
+  
   setTimeout(function(){ rollingBorder.destroy() }, 500);
 }

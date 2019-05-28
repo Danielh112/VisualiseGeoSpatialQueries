@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+/* Construct MongoDB query */
 router.get('/', async (req, res, next) => {
 
   const collection = req.query.collection;
@@ -41,6 +42,7 @@ function spatialQueryBuilder(req, next) {
   }
 }
 
+/* Find parameter for Near query */
 function nearQuery(req) {
 
   const queryType = req.query.queryType;
@@ -82,7 +84,7 @@ function minDistanceExpr(distance) {
   }
 }
 
-
+/* Find parameter for intersects and within queries */
 function spatialObjectQuery(req) {
 
   const collection = req.query.collection;
@@ -97,6 +99,7 @@ function spatialObjectQuery(req) {
           }`;
 }
 
+/* Find parameter for centre sphere querys */
 function centerSphereQuery(req) {
 
   const collection = req.query.collection;

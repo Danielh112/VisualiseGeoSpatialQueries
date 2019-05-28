@@ -7,6 +7,7 @@ const config = require('../config/config');
 const map = config.defaultMapConnection;
 var qs = require('querystring');
 
+/* Retrieve a list of MongoDB collections */
 
 router.get('/', async (req, res) => {
   const client = await mongoDBConnection.establishConn(req.query);
@@ -19,6 +20,7 @@ router.get('/', async (req, res) => {
   });
 });
 
+/* Retrieve a list of collection attributes */
 router.get('/attributes', async (req, res) => {
   let collection = req.query.collection;
 
@@ -31,6 +33,7 @@ router.get('/attributes', async (req, res) => {
 
 });
 
+/* Retrieve the size of a collection (how many documents are contained) */
 router.get('/size', async (req, res) => {
   const collection = req.query.collection;
 
@@ -45,6 +48,7 @@ router.get('/size', async (req, res) => {
   });
 });
 
+/* For a specific MongoDB document attribute retrieve the value data type */
 router.get('/attribute/type', async (req, res) => {
   let collection = req.query.collection;
 
@@ -72,6 +76,7 @@ router.get('/attribute/type', async (req, res) => {
   });
 });
 
+/* Retrieve the size of a collection (how many documents are contained) */
 router.get('/size', async (req, res) => {
   const collection = req.query.collection;
 
@@ -86,6 +91,7 @@ router.get('/size', async (req, res) => {
   });
 });
 
+/* Validate whether a geospatial index exists for a collection */
 router.get('/index/geospatial', async (req, res) => {
 
   const client = await mongoDBConnection.establishConn(req.query);
@@ -115,6 +121,7 @@ router.get('/index/geospatial', async (req, res) => {
   });
 });
 
+/* Create a geospatial index for a collection */
 router.post('/index/geospatial', async (req, res, next) => {
 
   let body = '';

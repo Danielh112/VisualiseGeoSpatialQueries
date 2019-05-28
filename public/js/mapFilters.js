@@ -9,6 +9,7 @@ $(document).ready(function() {
   });
 });
 
+/* Load in set map filters */
 async function initaliseFilters() {
   loadFilters();
   attributes = await populateAttributes();
@@ -19,6 +20,7 @@ async function initaliseFilters() {
   queryOutput(generatedQuery);
 }
 
+/* Display a list of attributes which the user can filter on */
 async function getFilterList() {
   filtersList = {};
   for (let filter of $('.filter-input')) {
@@ -91,7 +93,6 @@ function populateAttributes() {
         resolve(response);
       },
       error: function(err) {
-        //TODO display error in UI
         console.log(err);
         reject(err);
       }
@@ -99,6 +100,7 @@ function populateAttributes() {
   });
 }
 
+/* Retrieve the MongoDB document attribute data type */
 function getAttributeType(attribute) {
   let url = sessionStorage.getItem('url');
   let username = sessionStorage.getItem('username');
@@ -131,6 +133,8 @@ function getAttributeType(attribute) {
   });
 }
 
+
+/* Function used to display a list of attributes which can be used to filter in the UI */
 function displayAttributes(attributes) {
   attributes.forEach(function(attribute) {
     if (filtersList !== null) {

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
+/* API to construct natural language MongoDB query
+  Example: Find objects within 50 miles of x y*/
 router.get('/', async (req, res, next) => {
 
   const collection = req.query.collection;
@@ -14,7 +16,6 @@ router.get('/', async (req, res, next) => {
 
   /* If the geospatial object does not contain properties
   it means we are searching within/interesecting a spatial polygon */
-
   if (queryType === 'geoIntersects' || queryType === 'geoWithin') {
     if (req.query.geometry.properties == undefined) {
       geospatialOperators += spatialObjectQuery(req, next);
@@ -75,7 +76,6 @@ function minDistanceExpr(distance) {
               ${distance}m`;
   }
 }
-
 
 function spatialObjectQuery(req) {
 
