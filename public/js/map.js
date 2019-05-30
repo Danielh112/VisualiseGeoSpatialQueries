@@ -335,7 +335,7 @@ function initialiseMapTools() {
 
 function zoomedMap() {
   if (!mapLoading && map.getZoom() >= 4) {
-    alh(false, map.getBounds());
+    redrawMap(false, map.getBounds());
     zoomed = true;
   } else if (!mapLoading && zoomed) {
     redrawMap(false);
